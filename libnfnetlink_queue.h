@@ -12,13 +12,18 @@
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_queue.h>
 #include <libnfnetlink.h>
-#include "libnfqnetlink.h"
 
 
 #define NFQN
 struct nfqnl_handle
 {
 	struct nfnl_handle nfnlh;
+};
+
+struct nfqnl_q_handle
+{
+	struct nfqnl_handle *h;
+	u_int16_t id;
 };
 
 struct ctnl_msg_handler {
@@ -31,23 +36,26 @@ struct ctnl_handle {
 	struct ctnl_msg_handler *handler[NFQNL_MSG_MAX];
 };
 
-extern int nfqnl_open(struct nfqnl_handle *, unsigned int );
+extern int nfqnl_open(struct nfqnl_handle *h);
 extern int nfqnl_close(struct nfqnl_handle *h);
 
-extern int nfqnl_bind_pf(const struct nfqnl_handle *h, u_int16_t pf);
-extern int nfqnl_unbind_pf(const struct nfqnl_handle *h, u_int16_t pf);
+extern int nfqnl_bind_pf(struct nfqnl_handle *h, u_int16_t pf);
+extern int nfqnl_unbind_pf(struct nfqnl_handle *h, u_int16_t pf);
 
-extern int nfqnl_bind(const struct nfqnl_handle *h, u_int16_t num);
-extern int nfqnl_unbind(const struct nfqnl_handle *h, u_int16_t num);
+extern int nfqnl_create_queue(struct nfqnl_handle *h,
+			      struct nfqnl_q_handle *qh, u_int16_t num);
+extern int nfqnl_destroy_queue(struct nfqnl_q_handle *qh);
 
-extern int nfqnl_set_mode(const struct nfqnl_handle *h, u_int16_t num,
+extern int nfqnl_set_mode(struct nfqnl_q_handle *qh,
 			  u_int8_t mode, unsigned int len);
 
-extern int nfqnl_set_verdict(const struct nfqnl_handle *h,
+extern int nfqnl_set_verdict(struct nfqnl_q_handle *qh,
 			     u_int32_t id,
 			     u_int32_t verdict,
-			     u_int32_t mark,
 			     u_int32_t data_len,
 			     unsigned char *buf);
 
+extern int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh, u_int32_t id,
+			   u_int32_t verdict, u_int32_t mark,
+			   u_int32_t datalen, unsigned char *buf);
 #endif	/* __LIBNFQNETLINK_H */
