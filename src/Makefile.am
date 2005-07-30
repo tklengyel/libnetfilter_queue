@@ -13,3 +13,7 @@ libnfnetlink_queue_la_SOURCES = libnfnetlink_queue.c
 
 libnfnetlink_queue_libipq_la_LDFLAGS = -Wc,-nostartfiles
 libnfnetlink_queue_libipq_la_SOURCES = libipq_compat.c
+
+$(OBJECTS): libtool
+libtool: $(LIBTOOL_DEPS)
+	$(SHELL) ./config.status --recheck
