@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = no-dependencies foreign
 
 EXTRA_DIST = $(man_MANS) acinclude.m4
 
-SUBDIRS = include include/libnfnetlink_queue src utils
+SUBDIRS = include src utils
 
 man_MANS = #nfnetlink_queue.3 nfnetlink_queue.7
 

@@ -11,7 +11,7 @@
 
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_queue.h>
-#include <libnfnetlink.h>
+#include <libnfnetlink/libnfnetlink.h>
 
 
 #define NFQN

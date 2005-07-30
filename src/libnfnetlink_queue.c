@@ -28,7 +28,9 @@
 #include <linux/netlink.h>
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_queue.h>
-#include "libnfnetlink_queue.h"
+
+#include <libnfnetlink/libnfnetlink.h>
+#include <libnfnetlink_queue/libnfnetlink_queue.h>
 
 /***********************************************************************
  * low level stuff 
