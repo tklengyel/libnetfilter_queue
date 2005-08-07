@@ -13,38 +13,31 @@
 #include <linux/netfilter/nfnetlink_queue.h>
 #include <libnfnetlink/libnfnetlink.h>
 
+struct nfqnl_handle;
+struct nfqnl_q_handle;
 
-#define NFQN
-struct nfqnl_handle
-{
-	struct nfnl_handle nfnlh;
-};
+extern int nfqnl_errno;
 
-struct nfqnl_q_handle
-{
-	struct nfqnl_handle *h;
-	u_int16_t id;
-};
+extern struct nfnl_handle *nfqnl_nfnlh(struct nfqnl_handle *h);
+extern int nfqnl_fd(struct nfqnl_handle *h);
 
-struct ctnl_msg_handler {
-	int type;
-	int (*handler)(struct sockaddr_nl *, struct nlmsghdr *, void *arg);
-};
+typedef nfqnl_callback(struct nfqnl_q_handle *gh, struct nfgenmsg *nfmsg,
+		       struct nfattr *nfa[], void *data);
 
-struct ctnl_handle {
-	struct nfnl_handle nfnlh;
-	struct ctnl_msg_handler *handler[NFQNL_MSG_MAX];
-};
 
-extern int nfqnl_open(struct nfqnl_handle *h);
+extern struct nfqnl_handle *nfqnl_open(void);
 extern int nfqnl_close(struct nfqnl_handle *h);
 
 extern int nfqnl_bind_pf(struct nfqnl_handle *h, u_int16_t pf);
 extern int nfqnl_unbind_pf(struct nfqnl_handle *h, u_int16_t pf);
 
-extern int nfqnl_create_queue(struct nfqnl_handle *h,
-			      struct nfqnl_q_handle *qh, u_int16_t num);
+extern struct nfqnl_q_handle *nfqnl_create_queue(struct nfqnl_handle *h,
+			      			 u_int16_t num,
+						 nfqnl_callback *cb,
+						 void *data);
 extern int nfqnl_destroy_queue(struct nfqnl_q_handle *qh);
+
+extern int nfqnl_handle_packet(struct nfqnl_handle *h, char *buf, int len);
 
 extern int nfqnl_set_mode(struct nfqnl_q_handle *qh,
 			  u_int8_t mode, unsigned int len);
@@ -54,8 +47,10 @@ extern int nfqnl_set_verdict(struct nfqnl_q_handle *qh,
 			     u_int32_t verdict,
 			     u_int32_t data_len,
 			     unsigned char *buf);
-
-extern int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh, u_int32_t id,
-			   u_int32_t verdict, u_int32_t mark,
-			   u_int32_t datalen, unsigned char *buf);
+extern int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh, 
+				  u_int32_t id,
+			   	  u_int32_t verdict, 
+				  u_int32_t mark,
+			   	  u_int32_t datalen,
+				  unsigned char *buf);
 #endif	/* __LIBNFQNETLINK_H */

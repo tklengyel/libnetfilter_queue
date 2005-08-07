@@ -52,8 +52,8 @@ typedef unsigned long ipq_id_t;
 
 struct ipq_handle
 {
-	struct nfqnl_handle nfqnlh;
-	struct nfqnl_q_handle qh;
+	struct nfqnl_handle *nfqnlh;
+	struct nfqnl_q_handle *qh;
 	u_int8_t family;
 	u_int8_t blocking;
 };
