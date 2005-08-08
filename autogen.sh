@@ -13,5 +13,6 @@ run ()
 
 run aclocal
 #run autoheader
+run libtoolize -f
 run automake -a
 run autoconf
