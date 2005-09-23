@@ -25,9 +25,6 @@
 #include <errno.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <linux/netlink.h>
-#include <linux/netfilter/nfnetlink.h>
-#include <linux/netfilter/nfnetlink_queue.h>
 
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnfnetlink_queue/libnfnetlink_queue.h>
