@@ -89,9 +89,9 @@ static struct nfqnl_q_handle *find_qh(struct nfqnl_handle *h, u_int16_t id)
 }
 
 /* build a NFQNL_MSG_CONFIG message */
-static int
+	static int
 __build_send_cfg_msg(struct nfqnl_handle *h, u_int8_t command,
-		     u_int16_t queuenum, u_int16_t pf)
+		u_int16_t queuenum, u_int16_t pf)
 {
 	char buf[NFNL_HEADER_LEN
 		+NFA_LENGTH(sizeof(struct nfqnl_msg_config_cmd))];
@@ -99,7 +99,7 @@ __build_send_cfg_msg(struct nfqnl_handle *h, u_int8_t command,
 	struct nlmsghdr *nmh = (struct nlmsghdr *) buf;
 
 	nfnl_fill_hdr(&h->nfnlh, nmh, 0, AF_UNSPEC, queuenum,
-		      NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
+			NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
 
 	cmd.command = command;
 	cmd.pf = htons(pf);
@@ -109,7 +109,7 @@ __build_send_cfg_msg(struct nfqnl_handle *h, u_int8_t command,
 }
 
 static int __nfqnl_rcv_pkt(struct nlmsghdr *nlh, struct nfattr *nfa[],
-			   void *data)
+		void *data)
 {
 	struct nfgenmsg *nfmsg = NLMSG_DATA(nlh);
 	struct nfqnl_handle *h = data;
@@ -196,9 +196,9 @@ int nfqnl_unbind_pf(struct nfqnl_handle *h, u_int16_t pf)
 
 /* bind this socket to a specific queue number */
 struct nfqnl_q_handle *nfqnl_create_queue(struct nfqnl_handle *h, 
-					  u_int16_t num,
-					  nfqnl_callback *cb,
-					  void *data)
+		u_int16_t num,
+		nfqnl_callback *cb,
+		void *data)
 {
 	int ret;
 	struct nfqnl_q_handle *qh;
@@ -243,7 +243,7 @@ int nfqnl_handle_packet(struct nfqnl_handle *h, char *buf, int len)
 }
 
 int nfqnl_set_mode(struct nfqnl_q_handle *qh,
-		   u_int8_t mode, u_int32_t range)
+		u_int8_t mode, u_int32_t range)
 {
 	char buf[NFNL_HEADER_LEN
 		+NFA_LENGTH(sizeof(struct nfqnl_msg_config_params))];
@@ -251,19 +251,19 @@ int nfqnl_set_mode(struct nfqnl_q_handle *qh,
 	struct nlmsghdr *nmh = (struct nlmsghdr *) buf;
 
 	nfnl_fill_hdr(&qh->h->nfnlh, nmh, 0, AF_UNSPEC, qh->id,
-		      NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
+			NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
 
 	params.copy_range = htonl(range);
 	params.copy_mode = mode;
 	nfnl_addattr_l(nmh, sizeof(buf), NFQA_CFG_PARAMS, &params,
-		       sizeof(params));
+			sizeof(params));
 
 	return nfnl_talk(&qh->h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
 }
 
 static int __set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
-			 u_int32_t verdict, u_int32_t mark, int set_mark,
-			 u_int32_t data_len, unsigned char *data)
+		u_int32_t verdict, u_int32_t mark, int set_mark,
+		u_int32_t data_len, unsigned char *data)
 {
 	struct nfqnl_msg_verdict_hdr vh;
 	char buf[NFNL_HEADER_LEN
@@ -278,8 +278,8 @@ static int __set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
 	vh.id = htonl(id);
 
 	nfnl_fill_hdr(&qh->h->nfnlh, nmh, 0, AF_UNSPEC, qh->id,
-		      NFQNL_MSG_VERDICT, NLM_F_REQUEST);
-			
+			NFQNL_MSG_VERDICT, NLM_F_REQUEST);
+
 	/* add verdict header */
 	nfnl_addattr_l(nmh, sizeof(buf), NFQA_VERDICT_HDR, &vh, sizeof(vh));
 
@@ -294,7 +294,7 @@ static int __set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
 		struct nfattr data_attr;
 
 		nfnl_build_nfa_iovec(&iov[1], &data_attr, NFQA_PAYLOAD,
-				     data_len, data);
+				data_len, data);
 		nvecs += 2;
 	}
 
@@ -302,15 +302,75 @@ static int __set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
 }
 
 int nfqnl_set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
-		      u_int32_t verdict, u_int32_t data_len, 
-		      unsigned char *buf)
+		u_int32_t verdict, u_int32_t data_len, 
+		unsigned char *buf)
 {
 	return __set_verdict(qh, id, verdict, 0, 0, data_len, buf);
 }	
 
 int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh, u_int32_t id,
-			   u_int32_t verdict, u_int32_t mark,
-			   u_int32_t datalen, unsigned char *buf)
+		u_int32_t verdict, u_int32_t mark,
+		u_int32_t datalen, unsigned char *buf)
 {
 	return __set_verdict(qh, id, verdict, mark, 1, datalen, buf);
+}
+
+/*************************************************************
+ * Message parsing functions 
+ *************************************************************/
+
+struct nfqnl_msg_packet_hdr *nfqnl_get_msg_packet_hdr(struct nfattr *nfa[])
+{
+	return nfnl_get_pointer_to_data(nfa, NFQA_PACKET_HDR,
+					struct nfqnl_msg_packet_hdr);
+}
+
+uint32_t nfqnl_get_nfmark(struct nfattr *nfa[])
+{
+	return ntohl(nfnl_get_data(nfa, NFQA_MARK, u_int32_t));
+}
+
+struct nfqnl_msg_packet_timestamp *nfqnl_get_timestamp(struct nfattr *nfa[])
+{
+	return nfnl_get_pointer_to_data(nfa, NFQA_TIMESTAMP,
+					struct nfqnl_msg_packet_timestamp);
+}
+
+/* all nfqnl_get_*dev() functions return 0 if not set, since linux only allows
+ * ifindex >= 1, see net/core/dev.c:2600  (in 2.6.13.1) */
+u_int32_t nfqnl_get_indev(struct nfattr *nfa[])
+{
+	return ntohl(nfnl_get_data(nfa, NFQA_IFINDEX_INDEV, u_int32_t));
+}
+
+u_int32_t nfqnl_get_physindev(struct nfattr *nfa[])
+{
+	return ntohl(nfnl_get_data(nfa, NFQA_IFINDEX_PHYSINDEV, u_int32_t));
+}
+
+u_int32_t nfqnl_get_outdev(struct nfattr *nfa[])
+{
+	return ntohl(nfnl_get_data(nfa, NFQA_IFINDEX_OUTDEV, u_int32_t));
+}
+
+u_int32_t nfqnl_get_physoutdev(struct nfattr *nfa[])
+{
+	return ntohl(nfnl_get_data(nfa, NFQA_IFINDEX_PHYSOUTDEV, u_int32_t));
+}
+
+struct nfqnl_msg_packet_hw *nfqnl_get_packet_hw(struct nfattr *nfa[])
+{
+	return nfnl_get_pointer_to_data(nfa, NFQA_HWADDR,
+					struct nfqnl_msg_packet_hw);
+}
+
+int nfqnl_get_payload(struct nfattr *nfa[], char **data,
+		      unsigned int *datalen)
+{
+	*data = nfnl_get_pointer_to_data(nfa, NFQA_PAYLOAD, char*);
+	if (*data) {
+		*datalen = NFA_PAYLOAD(nfa[NFQA_PAYLOAD-1]);
+		return 1;
+	}
+	return 0;
 }

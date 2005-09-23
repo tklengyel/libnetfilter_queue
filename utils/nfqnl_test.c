@@ -11,36 +11,34 @@
 static u_int32_t print_pkt (struct nfattr *tb[])
 {
 	int id = 0;
-
-	if (tb[NFQA_PACKET_HDR-1]) {
-		struct nfqnl_msg_packet_hdr *ph = 
-					NFA_DATA(tb[NFQA_PACKET_HDR-1]);
+	struct nfqnl_msg_packet_hdr *ph;
+	u_int32_t mark,ifi; 
+	int ret;
+	unsigned int datalength;
+	char * data;
+	
+	ph = nfqnl_get_msg_packet_hdr(tb);
+	if (ph){
 		id = ntohl(ph->packet_id);
 		printf("hw_protocol=0x%04x hook=%u id=%u ",
 			ntohs(ph->hw_protocol), ph->hook, id);
 	}
-
-	if (tb[NFQA_MARK-1]) {
-		u_int32_t mark = 
-			ntohl(*(u_int32_t *)NFA_DATA(tb[NFQA_MARK-1]));
+	
+	mark = nfqnl_get_nfmark(tb);
+	if (mark)
 		printf("mark=%u ", mark);
-	}
 
-	if (tb[NFQA_IFINDEX_INDEV-1]) {
-		u_int32_t ifi = 
-			ntohl(*(u_int32_t *)NFA_DATA(tb[NFQA_IFINDEX_INDEV-1]));
+	ifi = nfqnl_get_indev(tb);
+	if (ifi)
 		printf("indev=%u ", ifi);
-	}
 
-	if (tb[NFQA_IFINDEX_OUTDEV-1]) {
-		u_int32_t ifi =
-			ntohl(*(u_int32_t *)NFA_DATA(tb[NFQA_IFINDEX_OUTDEV-1]));
+	ifi = nfqnl_get_outdev(tb);
+	if (ifi)
 		printf("outdev=%u ", ifi);
-	}
 
-	if (tb[NFQA_PAYLOAD-1]) {
-		printf("payload_len=%d ", NFA_PAYLOAD(tb[NFQA_PAYLOAD-1]));
-	}
+	ret = nfqnl_get_payload(tb, &data, &datalength);
+	if (ret)
+		printf("payload_len=%d ", datalength);
 
 	fputc('\n', stdout);
 

@@ -2,6 +2,10 @@
  *
  * (C) 2005 by Harald Welte <laforge@gnumonks.org>
  *
+ *
+ * Changelog : 
+ * 	(2005/08/11)  added  parsing function (Eric Leblond <regit@inl.fr>)
+ * 
  * This software may be used and distributed according to the terms
  * of the GNU General Public License, incorporated herein by reference.
  */
@@ -21,7 +25,7 @@ extern int nfqnl_errno;
 extern struct nfnl_handle *nfqnl_nfnlh(struct nfqnl_handle *h);
 extern int nfqnl_fd(struct nfqnl_handle *h);
 
-typedef nfqnl_callback(struct nfqnl_q_handle *gh, struct nfgenmsg *nfmsg,
+typedef int  nfqnl_callback(struct nfqnl_q_handle *gh, struct nfgenmsg *nfmsg,
 		       struct nfattr *nfa[], void *data);
 
 
@@ -47,10 +51,36 @@ extern int nfqnl_set_verdict(struct nfqnl_q_handle *qh,
 			     u_int32_t verdict,
 			     u_int32_t data_len,
 			     unsigned char *buf);
+
 extern int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh, 
 				  u_int32_t id,
 			   	  u_int32_t verdict, 
 				  u_int32_t mark,
 			   	  u_int32_t datalen,
 				  unsigned char *buf);
+
+/* message parsing function */
+
+extern struct nfqnl_msg_packet_hdr *
+				nfqnl_get_msg_packet_hdr(struct nfattr *nfa[]);
+
+extern u_int32_t nfqnl_get_nfmark(struct nfattr *nfa[]);
+
+extern struct nfqnl_msg_packet_timestamp *
+				nfqnl_get_timestamp(struct nfattr *nfa[]);
+
+/* return 0 if not set */
+extern u_int32_t nfqnl_get_indev(struct nfattr *nfa[]);
+extern u_int32_t nfqnl_get_physindev(struct nfattr *nfa[]);
+extern u_int32_t nfqnl_get_outdev(struct nfattr *nfa[]);
+extern u_int32_t nfqnl_get_physoutdev(struct nfattr *nfa[]);
+
+extern struct nfqnl_msg_packet_hw *nfqnl_get_packet_hw(struct nfattr *nfa[]);
+
+/* return 0 if problem */
+extern int nfqnl_get_payload(struct nfattr *nfa[],
+			     char ** data, unsigned int* datalen);
+
+
+
 #endif	/* __LIBNFQNETLINK_H */
