@@ -1,6 +1,6 @@
-AUTOMAKE_OPTIONS = no-dependencies foreign
+AUTOMAKE_OPTIONS = foreign dist-bzip2 1.6
 
-EXTRA_DIST = $(man_MANS) acinclude.m4
+EXTRA_DIST = $(man_MANS) 
 
 SUBDIRS = include src utils
 
