@@ -27,7 +27,7 @@
 #include <sys/socket.h>
 
 #include <libnfnetlink/libnfnetlink.h>
-#include <libnfnetlink_queue/libnfnetlink_queue.h>
+#include <libnetfilter_queue/libnetfilter_queue.h>
 
 struct nfqnl_handle
 {

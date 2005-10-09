@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <linux/netfilter.h>		/* for NF_ACCEPT */
 
-#include <libnfnetlink_queue/libnfnetlink_queue.h>
+#include <libnetfilter_queue/libnetfilter_queue.h>
 
 /* returns packet id */
 static u_int32_t print_pkt (struct nfattr *tb[])

@@ -1,3 +1,3 @@
 
-SUBDIRS = libnfnetlink_queue
+SUBDIRS = libnetfilter_queue
 

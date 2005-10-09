@@ -3,11 +3,11 @@ INCLUDES = $(all_includes) -I$(top_srcdir)/include -I${KERNELDIR}
 AM_CFLAGS=-fPIC -Wall
 LIBS=
 
-lib_LTLIBRARIES = libnfnetlink_queue.la libnfnetlink_queue_libipq.la
+lib_LTLIBRARIES = libnetfilter_queue.la libnetfilter_queue_libipq.la
 
-libnfnetlink_queue_la_LDFLAGS = -Wc,-nostartfiles
-libnfnetlink_queue_la_SOURCES = libnfnetlink_queue.c 
+libnetfilter_queue_la_LDFLAGS = -Wc,-nostartfiles
+libnetfilter_queue_la_SOURCES = libnetfilter_queue.c 
 
-libnfnetlink_queue_libipq_la_LDFLAGS = -Wc,-nostartfiles
-libnfnetlink_queue_libipq_la_SOURCES = libipq_compat.c
+libnetfilter_queue_libipq_la_LDFLAGS = -Wc,-nostartfiles
+libnetfilter_queue_libipq_la_SOURCES = libipq_compat.c
 

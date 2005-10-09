@@ -1,5 +1,5 @@
 /*
- * libipq - backwards compatibility library for libnfnetlink_queue
+ * libipq - backwards compatibility library for libnetfilter_queue
  *
  * (C) 2005 by Harald Welte <laforge@netfilter.org>
  *
@@ -27,8 +27,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include <libnfnetlink_queue/libnfnetlink_queue.h>
-#include <libnfnetlink_queue/libipq.h>
+#include <libnetfilter_queue/libnetfilter_queue.h>
+#include <libnetfilter_queue/libipq.h>
 
 /****************************************************************************
  *
