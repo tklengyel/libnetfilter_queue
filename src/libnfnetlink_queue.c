@@ -271,6 +271,8 @@ static int __set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
 	struct iovec iov[3];
 	int nvecs;
 
+	memset(iov, 0, sizeof(iov));
+
 	vh.verdict = htonl(verdict);
 	vh.id = htonl(id);
 
