@@ -366,7 +366,7 @@ struct nfqnl_msg_packet_hw *nfqnl_get_packet_hw(struct nfattr *nfa[])
 int nfqnl_get_payload(struct nfattr *nfa[], char **data,
 		      unsigned int *datalen)
 {
-	*data = nfnl_get_pointer_to_data(nfa, NFQA_PAYLOAD, char*);
+	*data = nfnl_get_pointer_to_data(nfa, NFQA_PAYLOAD, char);
 	if (*data) {
 		*datalen = NFA_PAYLOAD(nfa[NFQA_PAYLOAD-1]);
 		return 1;
