@@ -29,35 +29,35 @@
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
-struct nfqnl_handle
+struct nfq_handle
 {
 	struct nfnl_handle nfnlh;
-	struct nfqnl_q_handle *qh_list;
+	struct nfq_q_handle *qh_list;
 };
 
-struct nfqnl_q_handle
+struct nfq_q_handle
 {
-	struct nfqnl_q_handle *next;
-	struct nfqnl_handle *h;
+	struct nfq_q_handle *next;
+	struct nfq_handle *h;
 	u_int16_t id;
 
-	nfqnl_callback *cb;
+	nfq_callback *cb;
 	void *data;
 };
 
-struct nfnl_q_data {
+struct nfq_data {
 	struct nfattr **data;
 };
 
-int nfqnl_errno;
+int nfq_errno;
 
 /***********************************************************************
  * low level stuff 
  ***********************************************************************/
 
-static void del_qh(struct nfqnl_q_handle *qh)
+static void del_qh(struct nfq_q_handle *qh)
 {
-	struct nfqnl_q_handle *cur_qh, *prev_qh = NULL;
+	struct nfq_q_handle *cur_qh, *prev_qh = NULL;
 
 	for (cur_qh = qh->h->qh_list; cur_qh; cur_qh = cur_qh->next) {
 		if (cur_qh == qh) {
@@ -71,15 +71,15 @@ static void del_qh(struct nfqnl_q_handle *qh)
 	}
 }
 
-static void add_qh(struct nfqnl_q_handle *qh)
+static void add_qh(struct nfq_q_handle *qh)
 {
 	qh->next = qh->h->qh_list;
 	qh->h->qh_list = qh;
 }
 
-static struct nfqnl_q_handle *find_qh(struct nfqnl_handle *h, u_int16_t id)
+static struct nfq_q_handle *find_qh(struct nfq_handle *h, u_int16_t id)
 {
-	struct nfqnl_q_handle *qh;
+	struct nfq_q_handle *qh;
 
 	for (qh = h->qh_list; qh; qh = qh->next) {
 		if (qh->id == id)
@@ -90,7 +90,7 @@ static struct nfqnl_q_handle *find_qh(struct nfqnl_handle *h, u_int16_t id)
 
 /* build a NFQNL_MSG_CONFIG message */
 	static int
-__build_send_cfg_msg(struct nfqnl_handle *h, u_int8_t command,
+__build_send_cfg_msg(struct nfq_handle *h, u_int8_t command,
 		u_int16_t queuenum, u_int16_t pf)
 {
 	char buf[NFNL_HEADER_LEN
@@ -108,14 +108,14 @@ __build_send_cfg_msg(struct nfqnl_handle *h, u_int8_t command,
 	return nfnl_talk(&h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
 }
 
-static int __nfqnl_rcv_pkt(struct nlmsghdr *nlh, struct nfattr *nfa[],
+static int __nfq_rcv_pkt(struct nlmsghdr *nlh, struct nfattr *nfa[],
 		void *data)
 {
 	struct nfgenmsg *nfmsg = NLMSG_DATA(nlh);
-	struct nfqnl_handle *h = data;
+	struct nfq_handle *h = data;
 	u_int16_t queue_num = ntohs(nfmsg->res_id);
-	struct nfqnl_q_handle *qh = find_qh(h, queue_num);
-	struct nfnl_q_data nfqa;
+	struct nfq_q_handle *qh = find_qh(h, queue_num);
+	struct nfq_data nfqa;
 
 	if (!qh)
 		return -ENODEV;
@@ -129,25 +129,25 @@ static int __nfqnl_rcv_pkt(struct nlmsghdr *nlh, struct nfattr *nfa[],
 }
 
 static struct nfnl_callback pkt_cb = {
-	.call		= &__nfqnl_rcv_pkt,
+	.call		= &__nfq_rcv_pkt,
 	.attr_count	= NFQA_MAX,
 };
 
 /* public interface */
 
-struct nfnl_handle *nfqnl_nfnlh(struct nfqnl_handle *h)
+struct nfnl_handle *nfq_nfnlh(struct nfq_handle *h)
 {
 	return &h->nfnlh;
 }
 
-int nfqnl_fd(struct nfqnl_handle *h)
+int nfq_fd(struct nfq_handle *h)
 {
-	return nfnl_fd(nfqnl_nfnlh(h));
+	return nfnl_fd(nfq_nfnlh(h));
 }
 
-struct nfqnl_handle *nfqnl_open(void)
+struct nfq_handle *nfq_open(void)
 {
-	struct nfqnl_handle *h;
+	struct nfq_handle *h;
 	int err;
 
 	h = malloc(sizeof(*h));
@@ -158,14 +158,14 @@ struct nfqnl_handle *nfqnl_open(void)
 
 	err = nfnl_open(&h->nfnlh, NFNL_SUBSYS_QUEUE, NFQNL_MSG_MAX, 0);
 	if (err < 0) {
-		nfqnl_errno = err;
+		nfq_errno = err;
 		goto out_free;
 	}
 
 	pkt_cb.data = h;
 	err = nfnl_callback_register(&h->nfnlh, NFQNL_MSG_PACKET, &pkt_cb);
 	if (err < 0) {
-		nfqnl_errno = err;
+		nfq_errno = err;
 		goto out_close;
 	}
 
@@ -177,7 +177,7 @@ out_free:
 	return NULL;
 }
 
-int nfqnl_close(struct nfqnl_handle *h)
+int nfq_close(struct nfq_handle *h)
 {
 	int ret = nfnl_close(&h->nfnlh);
 	if (ret == 0)
@@ -186,25 +186,25 @@ int nfqnl_close(struct nfqnl_handle *h)
 }
 
 /* bind nf_queue from a specific protocol family */
-int nfqnl_bind_pf(struct nfqnl_handle *h, u_int16_t pf)
+int nfq_bind_pf(struct nfq_handle *h, u_int16_t pf)
 {
 	return __build_send_cfg_msg(h, NFQNL_CFG_CMD_PF_BIND, 0, pf);
 }
 
 /* unbind nf_queue from a specific protocol family */
-int nfqnl_unbind_pf(struct nfqnl_handle *h, u_int16_t pf)
+int nfq_unbind_pf(struct nfq_handle *h, u_int16_t pf)
 {
 	return __build_send_cfg_msg(h, NFQNL_CFG_CMD_PF_UNBIND, 0, pf);
 }
 
 /* bind this socket to a specific queue number */
-struct nfqnl_q_handle *nfqnl_create_queue(struct nfqnl_handle *h, 
+struct nfq_q_handle *nfq_create_queue(struct nfq_handle *h, 
 		u_int16_t num,
-		nfqnl_callback *cb,
+		nfq_callback *cb,
 		void *data)
 {
 	int ret;
-	struct nfqnl_q_handle *qh;
+	struct nfq_q_handle *qh;
 
 	if (find_qh(h, num))
 		return NULL;
@@ -219,7 +219,7 @@ struct nfqnl_q_handle *nfqnl_create_queue(struct nfqnl_handle *h,
 
 	ret = __build_send_cfg_msg(h, NFQNL_CFG_CMD_BIND, num, 0);
 	if (ret < 0) {
-		nfqnl_errno = ret;
+		nfq_errno = ret;
 		free(qh);
 		return NULL;
 	}
@@ -229,7 +229,7 @@ struct nfqnl_q_handle *nfqnl_create_queue(struct nfqnl_handle *h,
 }
 
 /* unbind this socket from a specific queue number */
-int nfqnl_destroy_queue(struct nfqnl_q_handle *qh)
+int nfq_destroy_queue(struct nfq_q_handle *qh)
 {
 	int ret = __build_send_cfg_msg(qh->h, NFQNL_CFG_CMD_UNBIND, qh->id, 0);
 	if (ret == 0) {
@@ -240,12 +240,12 @@ int nfqnl_destroy_queue(struct nfqnl_q_handle *qh)
 	return ret;
 }
 
-int nfqnl_handle_packet(struct nfqnl_handle *h, char *buf, int len)
+int nfq_handle_packet(struct nfq_handle *h, char *buf, int len)
 {
 	return nfnl_handle_packet(&h->nfnlh, buf, len);
 }
 
-int nfqnl_set_mode(struct nfqnl_q_handle *qh,
+int nfq_set_mode(struct nfq_q_handle *qh,
 		u_int8_t mode, u_int32_t range)
 {
 	char buf[NFNL_HEADER_LEN
@@ -264,7 +264,7 @@ int nfqnl_set_mode(struct nfqnl_q_handle *qh,
 	return nfnl_talk(&qh->h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
 }
 
-static int __set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
+static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark, int set_mark,
 		u_int32_t data_len, unsigned char *data)
 {
@@ -306,14 +306,14 @@ static int __set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
 	return nfnl_sendiov(&qh->h->nfnlh, iov, nvecs, 0);
 }
 
-int nfqnl_set_verdict(struct nfqnl_q_handle *qh, u_int32_t id,
+int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t data_len, 
 		unsigned char *buf)
 {
 	return __set_verdict(qh, id, verdict, 0, 0, data_len, buf);
 }	
 
-int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh, u_int32_t id,
+int nfq_set_verdict_mark(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark,
 		u_int32_t datalen, unsigned char *buf)
 {
@@ -324,52 +324,52 @@ int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh, u_int32_t id,
  * Message parsing functions 
  *************************************************************/
 
-struct nfqnl_msg_packet_hdr *nfqnl_get_msg_packet_hdr(struct nfnl_q_data *nfad)
+struct nfqnl_msg_packet_hdr *nfq_get_msg_packet_hdr(struct nfq_data *nfad)
 {
 	return nfnl_get_pointer_to_data(nfad->data, NFQA_PACKET_HDR,
 					struct nfqnl_msg_packet_hdr);
 }
 
-uint32_t nfqnl_get_nfmark(struct nfnl_q_data *nfad)
+uint32_t nfq_get_nfmark(struct nfq_data *nfad)
 {
 	return ntohl(nfnl_get_data(nfad->data, NFQA_MARK, u_int32_t));
 }
 
-struct nfqnl_msg_packet_timestamp *nfqnl_get_timestamp(struct nfnl_q_data *nfad)
+struct nfq_msg_packet_timestamp *nfq_get_timestamp(struct nfq_data *nfad)
 {
 	return nfnl_get_pointer_to_data(nfad->data, NFQA_TIMESTAMP,
-					struct nfqnl_msg_packet_timestamp);
+					struct nfq_msg_packet_timestamp);
 }
 
-/* all nfqnl_get_*dev() functions return 0 if not set, since linux only allows
+/* all nfq_get_*dev() functions return 0 if not set, since linux only allows
  * ifindex >= 1, see net/core/dev.c:2600  (in 2.6.13.1) */
-u_int32_t nfqnl_get_indev(struct nfnl_q_data *nfad)
+u_int32_t nfq_get_indev(struct nfq_data *nfad)
 {
 	return ntohl(nfnl_get_data(nfad->data, NFQA_IFINDEX_INDEV, u_int32_t));
 }
 
-u_int32_t nfqnl_get_physindev(struct nfnl_q_data *nfad)
+u_int32_t nfq_get_physindev(struct nfq_data *nfad)
 {
 	return ntohl(nfnl_get_data(nfad->data, NFQA_IFINDEX_PHYSINDEV, u_int32_t));
 }
 
-u_int32_t nfqnl_get_outdev(struct nfnl_q_data *nfad)
+u_int32_t nfq_get_outdev(struct nfq_data *nfad)
 {
 	return ntohl(nfnl_get_data(nfad->data, NFQA_IFINDEX_OUTDEV, u_int32_t));
 }
 
-u_int32_t nfqnl_get_physoutdev(struct nfnl_q_data *nfad)
+u_int32_t nfq_get_physoutdev(struct nfq_data *nfad)
 {
 	return ntohl(nfnl_get_data(nfad->data, NFQA_IFINDEX_PHYSOUTDEV, u_int32_t));
 }
 
-struct nfqnl_msg_packet_hw *nfqnl_get_packet_hw(struct nfnl_q_data *nfad)
+struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad)
 {
 	return nfnl_get_pointer_to_data(nfad->data, NFQA_HWADDR,
 					struct nfqnl_msg_packet_hw);
 }
 
-int nfqnl_get_payload(struct nfnl_q_data *nfad, char **data,
+int nfq_get_payload(struct nfq_data *nfad, char **data,
 		      unsigned int *datalen)
 {
 	*data = nfnl_get_pointer_to_data(nfad->data, NFQA_PAYLOAD, char);

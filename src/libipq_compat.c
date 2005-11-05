@@ -111,16 +111,16 @@ struct ipq_handle *ipq_create_handle(u_int32_t flags, u_int32_t protocol)
 	
 	memset(h, 0, sizeof(struct ipq_handle));
 
-	h->nfqnlh = nfqnl_open();
+	h->nfqnlh = nfq_open();
 	if (!h->nfqnlh) {
 		ipq_errno = IPQ_ERR_SOCKET;
 		goto err_free;
 	}
 	
         if (protocol == PF_INET)
-		status = nfqnl_bind_pf(h->nfqnlh, PF_INET);
+		status = nfq_bind_pf(h->nfqnlh, PF_INET);
         else if (protocol == PF_INET6)
-		status = nfqnl_bind_pf(h->nfqnlh, PF_INET6);
+		status = nfq_bind_pf(h->nfqnlh, PF_INET6);
         else {
 		ipq_errno = IPQ_ERR_PROTOCOL;
 		goto err_close;
@@ -131,7 +131,7 @@ struct ipq_handle *ipq_create_handle(u_int32_t flags, u_int32_t protocol)
 		goto err_close;
 	}
 
-	h->qh = nfqnl_create_queue(h->nfqnlh, 0, NULL, NULL);
+	h->qh = nfq_create_queue(h->nfqnlh, 0, NULL, NULL);
 	if (!h->qh) {
 		ipq_errno = IPQ_ERR_BIND;
 		goto err_close;
@@ -140,7 +140,7 @@ struct ipq_handle *ipq_create_handle(u_int32_t flags, u_int32_t protocol)
 	return h;
 
 err_close:
-	nfqnl_close(h->nfqnlh);
+	nfq_close(h->nfqnlh);
 err_free:
 	free(h);
 	return NULL;
@@ -153,7 +153,7 @@ err_free:
 int ipq_destroy_handle(struct ipq_handle *h)
 {
 	if (h) {
-		nfqnl_close(h->nfqnlh);
+		nfq_close(h->nfqnlh);
 		free(h);
 	}
 	return 0;
@@ -162,7 +162,7 @@ int ipq_destroy_handle(struct ipq_handle *h)
 int ipq_set_mode(const struct ipq_handle *h,
                  u_int8_t mode, size_t range)
 {
-	return nfqnl_set_mode(h->qh, mode, range);
+	return nfq_set_mode(h->qh, mode, range);
 }
 
 /*
@@ -183,7 +183,7 @@ ssize_t ipq_read(const struct ipq_handle *h,
 	 * in order to build a data structure that is compatible to
 	 * the old ipq interface... */
 
-	nfa = nfnl_parse_hdr(nfqnl_nfnlh(h->nfqnlh), nlh, &msg);
+	nfa = nfnl_parse_hdr(nfq_nfnlh(h->nfqnlh), nlh, &msg);
 	if (!msg || !nfa)
 		return 0;
 
@@ -219,7 +219,7 @@ int ipq_set_verdict(const struct ipq_handle *h,
                     size_t data_len,
                     unsigned char *buf)
 {
-	return nfqnl_set_verdict(h->qh, id, verdict, data_len, buf);
+	return nfq_set_verdict(h->qh, id, verdict, data_len, buf);
 }
 
 /* Not implemented yet */

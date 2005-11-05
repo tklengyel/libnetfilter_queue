@@ -18,43 +18,43 @@
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_queue.h>
 
-struct nfqnl_handle;
-struct nfqnl_q_handle;
-struct nfnl_q_data;
+struct nfq_handle;
+struct nfq_q_handle;
+struct nfq_data;
 
-extern int nfqnl_errno;
+extern int nfq_errno;
 
-extern struct nfnl_handle *nfqnl_nfnlh(struct nfqnl_handle *h);
-extern int nfqnl_fd(struct nfqnl_handle *h);
+extern struct nfnl_handle *nfq_nfnlh(struct nfq_handle *h);
+extern int nfq_fd(struct nfq_handle *h);
 
-typedef int  nfqnl_callback(struct nfqnl_q_handle *gh, struct nfgenmsg *nfmsg,
-		       struct nfnl_q_data *nfad, void *data);
+typedef int  nfq_callback(struct nfq_q_handle *gh, struct nfgenmsg *nfmsg,
+		       struct nfq_data *nfad, void *data);
 
 
-extern struct nfqnl_handle *nfqnl_open(void);
-extern int nfqnl_close(struct nfqnl_handle *h);
+extern struct nfq_handle *nfq_open(void);
+extern int nfq_close(struct nfq_handle *h);
 
-extern int nfqnl_bind_pf(struct nfqnl_handle *h, u_int16_t pf);
-extern int nfqnl_unbind_pf(struct nfqnl_handle *h, u_int16_t pf);
+extern int nfq_bind_pf(struct nfq_handle *h, u_int16_t pf);
+extern int nfq_unbind_pf(struct nfq_handle *h, u_int16_t pf);
 
-extern struct nfqnl_q_handle *nfqnl_create_queue(struct nfqnl_handle *h,
+extern struct nfq_q_handle *nfq_create_queue(struct nfq_handle *h,
 			      			 u_int16_t num,
-						 nfqnl_callback *cb,
+						 nfq_callback *cb,
 						 void *data);
-extern int nfqnl_destroy_queue(struct nfqnl_q_handle *qh);
+extern int nfq_destroy_queue(struct nfq_q_handle *qh);
 
-extern int nfqnl_handle_packet(struct nfqnl_handle *h, char *buf, int len);
+extern int nfq_handle_packet(struct nfq_handle *h, char *buf, int len);
 
-extern int nfqnl_set_mode(struct nfqnl_q_handle *qh,
+extern int nfq_set_mode(struct nfq_q_handle *qh,
 			  u_int8_t mode, unsigned int len);
 
-extern int nfqnl_set_verdict(struct nfqnl_q_handle *qh,
+extern int nfq_set_verdict(struct nfq_q_handle *qh,
 			     u_int32_t id,
 			     u_int32_t verdict,
 			     u_int32_t data_len,
 			     unsigned char *buf);
 
-extern int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh, 
+extern int nfq_set_verdict_mark(struct nfq_q_handle *qh, 
 				  u_int32_t id,
 			   	  u_int32_t verdict, 
 				  u_int32_t mark,
@@ -64,23 +64,23 @@ extern int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh,
 /* message parsing function */
 
 extern struct nfqnl_msg_packet_hdr *
-				nfqnl_get_msg_packet_hdr(struct nfnl_q_data *nfad);
+				nfq_get_msg_packet_hdr(struct nfq_data *nfad);
 
-extern u_int32_t nfqnl_get_nfmark(struct nfnl_q_data *nfad);
+extern u_int32_t nfq_get_nfmark(struct nfq_data *nfad);
 
-extern struct nfqnl_msg_packet_timestamp *
-				nfqnl_get_timestamp(struct nfnl_q_data *nfad);
+extern struct nfq_msg_packet_timestamp *
+				nfq_get_timestamp(struct nfq_data *nfad);
 
 /* return 0 if not set */
-extern u_int32_t nfqnl_get_indev(struct nfnl_q_data *nfad);
-extern u_int32_t nfqnl_get_physindev(struct nfnl_q_data *nfad);
-extern u_int32_t nfqnl_get_outdev(struct nfnl_q_data *nfad);
-extern u_int32_t nfqnl_get_physoutdev(struct nfnl_q_data *nfad);
+extern u_int32_t nfq_get_indev(struct nfq_data *nfad);
+extern u_int32_t nfq_get_physindev(struct nfq_data *nfad);
+extern u_int32_t nfq_get_outdev(struct nfq_data *nfad);
+extern u_int32_t nfq_get_physoutdev(struct nfq_data *nfad);
 
-extern struct nfqnl_msg_packet_hw *nfqnl_get_packet_hw(struct nfnl_q_data *nfad);
+extern struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad);
 
 /* return 0 if problem */
-extern int nfqnl_get_payload(struct nfnl_q_data *nfad,
+extern int nfq_get_payload(struct nfq_data *nfad,
 			     char ** data, unsigned int* datalen);
 
 
