@@ -8,7 +8,7 @@
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
 /* returns packet id */
-static u_int32_t print_pkt (struct nfattr *tb[])
+static u_int32_t print_pkt (struct nfnl_q_data *tb)
 {
 	int id = 0;
 	struct nfqnl_msg_packet_hdr *ph;
@@ -47,7 +47,7 @@ static u_int32_t print_pkt (struct nfattr *tb[])
 	
 
 static int cb(struct nfqnl_q_handle *qh, struct nfgenmsg *nfmsg,
-	      struct nfattr *nfa[], void *data)
+	      struct nfnl_q_data *nfa, void *data)
 {
 	u_int32_t id = print_pkt(nfa);
 	printf("entering callback\n");

@@ -20,6 +20,7 @@
 
 struct nfqnl_handle;
 struct nfqnl_q_handle;
+struct nfnl_q_data;
 
 extern int nfqnl_errno;
 
@@ -27,7 +28,7 @@ extern struct nfnl_handle *nfqnl_nfnlh(struct nfqnl_handle *h);
 extern int nfqnl_fd(struct nfqnl_handle *h);
 
 typedef int  nfqnl_callback(struct nfqnl_q_handle *gh, struct nfgenmsg *nfmsg,
-		       struct nfattr *nfa[], void *data);
+		       struct nfnl_q_data *nfad, void *data);
 
 
 extern struct nfqnl_handle *nfqnl_open(void);
@@ -63,23 +64,23 @@ extern int nfqnl_set_verdict_mark(struct nfqnl_q_handle *qh,
 /* message parsing function */
 
 extern struct nfqnl_msg_packet_hdr *
-				nfqnl_get_msg_packet_hdr(struct nfattr *nfa[]);
+				nfqnl_get_msg_packet_hdr(struct nfnl_q_data *nfad);
 
-extern u_int32_t nfqnl_get_nfmark(struct nfattr *nfa[]);
+extern u_int32_t nfqnl_get_nfmark(struct nfnl_q_data *nfad);
 
 extern struct nfqnl_msg_packet_timestamp *
-				nfqnl_get_timestamp(struct nfattr *nfa[]);
+				nfqnl_get_timestamp(struct nfnl_q_data *nfad);
 
 /* return 0 if not set */
-extern u_int32_t nfqnl_get_indev(struct nfattr *nfa[]);
-extern u_int32_t nfqnl_get_physindev(struct nfattr *nfa[]);
-extern u_int32_t nfqnl_get_outdev(struct nfattr *nfa[]);
-extern u_int32_t nfqnl_get_physoutdev(struct nfattr *nfa[]);
+extern u_int32_t nfqnl_get_indev(struct nfnl_q_data *nfad);
+extern u_int32_t nfqnl_get_physindev(struct nfnl_q_data *nfad);
+extern u_int32_t nfqnl_get_outdev(struct nfnl_q_data *nfad);
+extern u_int32_t nfqnl_get_physoutdev(struct nfnl_q_data *nfad);
 
-extern struct nfqnl_msg_packet_hw *nfqnl_get_packet_hw(struct nfattr *nfa[]);
+extern struct nfqnl_msg_packet_hw *nfqnl_get_packet_hw(struct nfnl_q_data *nfad);
 
 /* return 0 if problem */
-extern int nfqnl_get_payload(struct nfattr *nfa[],
+extern int nfqnl_get_payload(struct nfnl_q_data *nfad,
 			     char ** data, unsigned int* datalen);
 
 
