@@ -369,13 +369,11 @@ struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad)
 					struct nfqnl_msg_packet_hw);
 }
 
-int nfq_get_payload(struct nfq_data *nfad, char **data,
-		      unsigned int *datalen)
+int nfq_get_payload(struct nfq_data *nfad, char **data)
 {
 	*data = nfnl_get_pointer_to_data(nfad->data, NFQA_PAYLOAD, char);
-	if (*data) {
-		*datalen = NFA_PAYLOAD(nfad->data[NFQA_PAYLOAD-1]);
-		return 1;
-	}
-	return 0;
+	if (*data)
+		return NFA_PAYLOAD(nfad->data[NFQA_PAYLOAD-1]);
+
+	return -1;
 }

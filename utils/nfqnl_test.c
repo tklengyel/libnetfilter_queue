@@ -14,8 +14,7 @@ static u_int32_t print_pkt (struct nfq_data *tb)
 	struct nfqnl_msg_packet_hdr *ph;
 	u_int32_t mark,ifi; 
 	int ret;
-	unsigned int datalength;
-	char * data;
+	char *data;
 	
 	ph = nfq_get_msg_packet_hdr(tb);
 	if (ph){
@@ -36,9 +35,9 @@ static u_int32_t print_pkt (struct nfq_data *tb)
 	if (ifi)
 		printf("outdev=%u ", ifi);
 
-	ret = nfq_get_payload(tb, &data, &datalength);
-	if (ret)
-		printf("payload_len=%d ", datalength);
+	ret = nfq_get_payload(tb, &data);
+	if (ret >= 0)
+		printf("payload_len=%d ", ret);
 
 	fputc('\n', stdout);
 

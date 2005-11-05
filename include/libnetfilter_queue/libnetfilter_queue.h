@@ -79,9 +79,8 @@ extern u_int32_t nfq_get_physoutdev(struct nfq_data *nfad);
 
 extern struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad);
 
-/* return 0 if problem */
-extern int nfq_get_payload(struct nfq_data *nfad,
-			     char ** data, unsigned int* datalen);
+/* return -1 if problem, length otherwise */
+extern int nfq_get_payload(struct nfq_data *nfad, char **data);
 
 
 
