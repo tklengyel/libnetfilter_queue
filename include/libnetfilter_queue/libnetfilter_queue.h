@@ -68,8 +68,7 @@ extern struct nfqnl_msg_packet_hdr *
 
 extern u_int32_t nfq_get_nfmark(struct nfq_data *nfad);
 
-extern struct nfq_msg_packet_timestamp *
-				nfq_get_timestamp(struct nfq_data *nfad);
+extern int nfq_get_timestamp(struct nfq_data *nfad, struct timeval *tv);
 
 /* return 0 if not set */
 extern u_int32_t nfq_get_indev(struct nfq_data *nfad);

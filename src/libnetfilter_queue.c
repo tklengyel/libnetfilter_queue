@@ -335,10 +335,18 @@ uint32_t nfq_get_nfmark(struct nfq_data *nfad)
 	return ntohl(nfnl_get_data(nfad->data, NFQA_MARK, u_int32_t));
 }
 
-struct nfq_msg_packet_timestamp *nfq_get_timestamp(struct nfq_data *nfad)
+int nfq_get_timestamp(struct nfq_data *nfad, struct timeval *tv)
 {
-	return nfnl_get_pointer_to_data(nfad->data, NFQA_TIMESTAMP,
-					struct nfq_msg_packet_timestamp);
+	struct nfqnl_msg_packet_timestamp *qpt;
+	qpt = nfnl_get_pointer_to_data(nfad->data, NFQA_TIMESTAMP,
+					struct nfqnl_msg_packet_timestamp);
+	if (!qpt)
+		return -1;
+
+	tv->tv_sec = __be64_to_cpu(qpt->sec);
+	tv->tv_usec = __be64_to_cpu(qpt->usec);
+
+	return 0;
 }
 
 /* all nfq_get_*dev() functions return 0 if not set, since linux only allows
