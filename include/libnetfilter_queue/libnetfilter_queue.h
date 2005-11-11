@@ -14,9 +14,9 @@
 #define __LIBCTNETLINK_H
 
 #include <libnfnetlink/libnfnetlink.h>
+// #include <libnfnetlink/liunx_nfnetlink.h>
 
-#include <linux/netfilter/nfnetlink.h>
-#include <linux/netfilter/nfnetlink_queue.h>
+#include <libnetfilter_queue/linux_nfnetlink_queue.h>
 
 struct nfq_handle;
 struct nfq_q_handle;
