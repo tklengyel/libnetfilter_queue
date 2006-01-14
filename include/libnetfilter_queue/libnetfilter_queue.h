@@ -32,6 +32,7 @@ typedef int  nfq_callback(struct nfq_q_handle *gh, struct nfgenmsg *nfmsg,
 
 
 extern struct nfq_handle *nfq_open(void);
+extern struct nfq_handle *nfq_open_nfnl(struct nfnl_handle *nfnlh);
 extern int nfq_close(struct nfq_handle *h);
 
 extern int nfq_bind_pf(struct nfq_handle *h, u_int16_t pf);

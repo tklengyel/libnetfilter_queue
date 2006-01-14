@@ -31,7 +31,8 @@
 
 struct nfq_handle
 {
-	struct nfnl_handle nfnlh;
+	struct nfnl_handle *nfnlh;
+	struct nfnl_subsys_handle *nfnlssh;
 	struct nfq_q_handle *qh_list;
 };
 
@@ -98,14 +99,14 @@ __build_send_cfg_msg(struct nfq_handle *h, u_int8_t command,
 	struct nfqnl_msg_config_cmd cmd;
 	struct nlmsghdr *nmh = (struct nlmsghdr *) buf;
 
-	nfnl_fill_hdr(&h->nfnlh, nmh, 0, AF_UNSPEC, queuenum,
+	nfnl_fill_hdr(h->nfnlssh, nmh, 0, AF_UNSPEC, queuenum,
 			NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
 
 	cmd.command = command;
 	cmd.pf = htons(pf);
 	nfnl_addattr_l(nmh, sizeof(buf), NFQA_CFG_CMD, &cmd, sizeof(cmd));
 
-	return nfnl_talk(&h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
+	return nfnl_talk(h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
 }
 
 static int __nfq_rcv_pkt(struct nlmsghdr *nlh, struct nfattr *nfa[],
@@ -137,7 +138,7 @@ static struct nfnl_callback pkt_cb = {
 
 struct nfnl_handle *nfq_nfnlh(struct nfq_handle *h)
 {
-	return &h->nfnlh;
+	return h->nfnlh;
 }
 
 int nfq_fd(struct nfq_handle *h)
@@ -146,6 +147,21 @@ int nfq_fd(struct nfq_handle *h)
 }
 
 struct nfq_handle *nfq_open(void)
+{
+	struct nfnl_handle *nfnlh = nfnl_open();
+	struct nfq_handle *qh;
+
+	if (!nfnlh)
+		return NULL;
+
+	qh = nfq_open_nfnl(nfnlh);
+	if (!qh)
+		nfnl_close(nfnlh);
+
+	return qh;
+}
+
+struct nfq_handle *nfq_open_nfnl(struct nfnl_handle *nfnlh)
 {
 	struct nfq_handle *h;
 	int err;
@@ -156,14 +172,15 @@ struct nfq_handle *nfq_open(void)
 
 	memset(h, 0, sizeof(*h));
 
-	err = nfnl_open(&h->nfnlh, NFNL_SUBSYS_QUEUE, NFQNL_MSG_MAX, 0);
-	if (err < 0) {
-		nfq_errno = err;
+	h->nfnlssh = nfnl_subsys_open(h->nfnlh, NFNL_SUBSYS_QUEUE, 
+				      NFQNL_MSG_MAX, 0);
+	if (!h->nfnlssh) {
+		/* FIXME: nfq_errno */
 		goto out_free;
 	}
 
 	pkt_cb.data = h;
-	err = nfnl_callback_register(&h->nfnlh, NFQNL_MSG_PACKET, &pkt_cb);
+	err = nfnl_callback_register(h->nfnlssh, NFQNL_MSG_PACKET, &pkt_cb);
 	if (err < 0) {
 		nfq_errno = err;
 		goto out_close;
@@ -171,7 +188,7 @@ struct nfq_handle *nfq_open(void)
 
 	return h;
 out_close:
-	nfnl_close(&h->nfnlh);
+	nfnl_subsys_close(h->nfnlssh);
 out_free:
 	free(h);
 	return NULL;
@@ -179,7 +196,10 @@ out_free:
 
 int nfq_close(struct nfq_handle *h)
 {
-	int ret = nfnl_close(&h->nfnlh);
+	int ret;
+	
+	nfnl_subsys_close(h->nfnlssh);
+	ret = nfnl_close(h->nfnlh);
 	if (ret == 0)
 		free(h);
 	return ret;
@@ -242,7 +262,7 @@ int nfq_destroy_queue(struct nfq_q_handle *qh)
 
 int nfq_handle_packet(struct nfq_handle *h, char *buf, int len)
 {
-	return nfnl_handle_packet(&h->nfnlh, buf, len);
+	return nfnl_handle_packet(h->nfnlh, buf, len);
 }
 
 int nfq_set_mode(struct nfq_q_handle *qh,
@@ -253,7 +273,7 @@ int nfq_set_mode(struct nfq_q_handle *qh,
 	struct nfqnl_msg_config_params params;
 	struct nlmsghdr *nmh = (struct nlmsghdr *) buf;
 
-	nfnl_fill_hdr(&qh->h->nfnlh, nmh, 0, AF_UNSPEC, qh->id,
+	nfnl_fill_hdr(qh->h->nfnlssh, nmh, 0, AF_UNSPEC, qh->id,
 			NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
 
 	params.copy_range = htonl(range);
@@ -261,7 +281,7 @@ int nfq_set_mode(struct nfq_q_handle *qh,
 	nfnl_addattr_l(nmh, sizeof(buf), NFQA_CFG_PARAMS, &params,
 			sizeof(params));
 
-	return nfnl_talk(&qh->h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
+	return nfnl_talk(qh->h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
 }
 
 static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
@@ -282,7 +302,7 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 	vh.verdict = htonl(verdict);
 	vh.id = htonl(id);
 
-	nfnl_fill_hdr(&qh->h->nfnlh, nmh, 0, AF_UNSPEC, qh->id,
+	nfnl_fill_hdr(qh->h->nfnlssh, nmh, 0, AF_UNSPEC, qh->id,
 			NFQNL_MSG_VERDICT, NLM_F_REQUEST);
 
 	/* add verdict header */
@@ -303,7 +323,7 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		nvecs += 2;
 	}
 
-	return nfnl_sendiov(&qh->h->nfnlh, iov, nvecs, 0);
+	return nfnl_sendiov(qh->h->nfnlh, iov, nvecs, 0);
 }
 
 int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
