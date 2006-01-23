@@ -171,6 +171,7 @@ struct nfq_handle *nfq_open_nfnl(struct nfnl_handle *nfnlh)
 		return NULL;
 
 	memset(h, 0, sizeof(*h));
+	h->nfnlh = nfnlh;
 
 	h->nfnlssh = nfnl_subsys_open(h->nfnlh, NFNL_SUBSYS_QUEUE, 
 				      NFQNL_MSG_MAX, 0);
