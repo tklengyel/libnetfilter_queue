@@ -14,6 +14,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *  2006-01-23 Andreas Florath <andreas@florath.net>
+ *	Fix __set_verdict() that it can now handle payload.
  */
 
 #include <stdio.h>
@@ -298,6 +301,10 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 	struct iovec iov[3];
 	int nvecs;
 
+	/* This must be declared here (and not inside the data
+	 * handling block) because the iovec points to this. */
+	struct nfattr data_attr;
+
 	memset(iov, 0, sizeof(iov));
 
 	vh.verdict = htonl(verdict);
@@ -317,11 +324,14 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 	nvecs = 1;
 
 	if (data_len) {
-		struct nfattr data_attr;
-
 		nfnl_build_nfa_iovec(&iov[1], &data_attr, NFQA_PAYLOAD,
 				data_len, data);
 		nvecs += 2;
+		/* Add the length of the appended data to the message
+		 * header.  The size of the attribute is given in the
+		 * nfa_len field and is set in the nfnl_build_nfa_iovec()
+		 * function. */
+		nmh->nlmsg_len += data_attr.nfa_len;
 	}
 
 	return nfnl_sendiov(qh->h->nfnlh, iov, nvecs, 0);
