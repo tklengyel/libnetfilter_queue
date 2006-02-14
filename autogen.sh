@@ -45,7 +45,7 @@ run ()
     fi
 }
 
-include
+[ "x$1" == "xdistrib" ] && include
 run libtoolize
 run aclocal
 #run autoheader
