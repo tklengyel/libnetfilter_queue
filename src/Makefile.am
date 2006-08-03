@@ -3,8 +3,8 @@
 LIBVERSION=2:0:1
 
 INCLUDES = $(all_includes) -I$(top_srcdir)/include -I${KERNELDIR}
-AM_CFLAGS=-fPIC -Wall
-LIBS=
+AM_CFLAGS = -fPIC -Wall
+LIBS = @LIBNFQUEUE_LIBS@
 
 lib_LTLIBRARIES = libnetfilter_queue.la libnetfilter_queue_libipq.la
 
