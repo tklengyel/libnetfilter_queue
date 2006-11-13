@@ -288,6 +288,23 @@ int nfq_set_mode(struct nfq_q_handle *qh,
 	return nfnl_talk(qh->h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
 }
 
+int nfq_set_queue_maxlen(struct nfq_q_handle *qh,
+				u_int32_t queuelen)
+{
+	char buf[NFNL_HEADER_LEN
+		+NFA_LENGTH(sizeof(struct nfqnl_msg_config_params))];
+	u_int32_t queue_maxlen = htonl(queuelen);
+	struct nlmsghdr *nmh = (struct nlmsghdr *) buf;
+
+	nfnl_fill_hdr(qh->h->nfnlssh, nmh, 0, AF_UNSPEC, qh->id,
+			NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
+
+	nfnl_addattr_l(nmh, sizeof(buf), NFQA_CFG_QUEUE_MAXLEN, &queue_maxlen,
+			sizeof(queue_maxlen));
+
+	return nfnl_talk(qh->h->nfnlh, nmh, 0, 0, NULL, NULL, NULL);
+}
+
 static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark, int set_mark,
 		u_int32_t data_len, unsigned char *data)

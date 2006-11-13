@@ -49,6 +49,9 @@ extern int nfq_handle_packet(struct nfq_handle *h, char *buf, int len);
 extern int nfq_set_mode(struct nfq_q_handle *qh,
 			  u_int8_t mode, unsigned int len);
 
+int nfq_set_queue_maxlen(struct nfq_q_handle *qh,
+			u_int32_t queuelen);
+
 extern int nfq_set_verdict(struct nfq_q_handle *qh,
 			     u_int32_t id,
 			     u_int32_t verdict,
