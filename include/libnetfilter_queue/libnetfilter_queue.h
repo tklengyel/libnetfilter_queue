@@ -80,6 +80,15 @@ extern u_int32_t nfq_get_physindev(struct nfq_data *nfad);
 extern u_int32_t nfq_get_outdev(struct nfq_data *nfad);
 extern u_int32_t nfq_get_physoutdev(struct nfq_data *nfad);
 
+extern int nfq_get_indev_name(struct nlif_handle *nlif_handle,
+			      struct nfq_data *nfad, char *name);
+extern int nfq_get_physindev_name(struct nlif_handle *nlif_handle,
+			          struct nfq_data *nfad, char *name);
+extern int nfq_get_outdev_name(struct nlif_handle *nlif_handle,
+			       struct nfq_data *nfad, char *name);
+extern int nfq_get_physoutdev_name(struct nlif_handle *nlif_handle,
+				   struct nfq_data *nfad, char *name);
+
 extern struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad);
 
 /* return -1 if problem, length otherwise */

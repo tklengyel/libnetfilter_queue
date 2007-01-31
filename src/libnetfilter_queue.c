@@ -419,6 +419,34 @@ u_int32_t nfq_get_physoutdev(struct nfq_data *nfad)
 	return ntohl(nfnl_get_data(nfad->data, NFQA_IFINDEX_PHYSOUTDEV, u_int32_t));
 }
 
+int nfq_get_indev_name(struct nlif_handle *nlif_handle,
+			struct nfq_data *nfad, char *name)
+{
+	u_int32_t ifindex = nfq_get_indev(nfad);
+	return nlif_index2name(nlif_handle, ifindex, name);
+}
+
+int nfq_get_physindev_name(struct nlif_handle *nlif_handle,
+			   struct nfq_data *nfad, char *name)
+{
+	u_int32_t ifindex = nfq_get_physindev(nfad);
+	return nlif_index2name(nlif_handle, ifindex, name);
+}
+
+int nfq_get_outdev_name(struct nlif_handle *nlif_handle,
+			struct nfq_data *nfad, char *name)
+{
+	u_int32_t ifindex = nfq_get_outdev(nfad);
+	return nlif_index2name(nlif_handle, ifindex, name);
+}
+
+int nfq_get_physoutdev_name(struct nlif_handle *nlif_handle,
+			    struct nfq_data *nfad, char *name)
+{
+	u_int32_t ifindex = nfq_get_physoutdev(nfad);
+	return nlif_index2name(nlif_handle, ifindex, name);
+}
+
 struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad)
 {
 	return nfnl_get_pointer_to_data(nfad->data, NFQA_HWADDR,
