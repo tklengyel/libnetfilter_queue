@@ -5,7 +5,6 @@
 #define aligned_u64 unsigned long long __attribute__((aligned(8)))
 #endif
 
-#include <linux/types.h>
 #include <libnfnetlink/linux_nfnetlink.h>
 
 enum nfqnl_msg_types {
