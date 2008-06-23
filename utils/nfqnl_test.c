@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 	struct nfnl_handle *nh;
 	int fd;
 	int rv;
-	char buf[4096];
+	char buf[4096] __attribute__ ((aligned));
 
 	printf("opening library handle\n");
 	h = nfq_open();
