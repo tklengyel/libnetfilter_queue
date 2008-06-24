@@ -50,6 +50,10 @@ typedef unsigned long ipq_id_t;
 #define MSG_TRUNC 0x20
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ipq_handle
 {
 	struct nfq_handle *nfqnlh;
@@ -83,6 +87,10 @@ int ipq_ctl(const struct ipq_handle *h, int request, ...);
 
 char *ipq_errstr(void);
 void ipq_perror(const char *s);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif	/* _LIBIPQ_H */
 

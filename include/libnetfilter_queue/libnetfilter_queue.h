@@ -18,6 +18,10 @@
 
 #include <libnetfilter_queue/linux_nfnetlink_queue.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct nfq_handle;
 struct nfq_q_handle;
 struct nfq_data;
@@ -94,6 +98,8 @@ extern struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad);
 /* return -1 if problem, length otherwise */
 extern int nfq_get_payload(struct nfq_data *nfad, char **data);
 
-
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif	/* __LIBNFQNETLINK_H */
