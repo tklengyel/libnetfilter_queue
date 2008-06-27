@@ -3,7 +3,7 @@ dnl Process this file with autoconf to create configure.
 AC_INIT
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE(libnetfilter_queue, 0.0.15)
+AM_INIT_AUTOMAKE(libnetfilter_queue, 0.0.16)
 
 AC_PROG_CC
 AC_EXEEXT
@@ -18,7 +18,7 @@ case $target in
 esac
 
 dnl Dependencies
-LIBNFNETLINK_REQUIRED=0.0.16
+LIBNFNETLINK_REQUIRED=0.0.38
  
 PKG_CHECK_MODULES(LIBNFNETLINK, libnfnetlink >= $LIBNFNETLINK_REQUIRED,,
 	AC_MSG_ERROR(Cannot find libnfnetlink >= $LIBNFNETLINK_REQUIRED))
