@@ -1,7 +1,7 @@
 
 INCLUDES = $(all_includes) -I$(top_srcdir)/include -I${KERNELDIR} 
 
-noinst_PROGRAMS = nfqnl_test
+check_PROGRAMS = nfqnl_test
 
 nfqnl_test_SOURCES = nfqnl_test.c
 nfqnl_test_LDADD = ../src/libnetfilter_queue.la
