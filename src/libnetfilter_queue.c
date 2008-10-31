@@ -529,9 +529,9 @@ int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
  */
 int nfq_set_verdict_mark(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark,
-		u_int32_t datalen, unsigned char *buf)
+		u_int32_t data_len, unsigned char *buf)
 {
-	return __set_verdict(qh, id, verdict, mark, 1, datalen, buf);
+	return __set_verdict(qh, id, verdict, mark, 1, data_len, buf);
 }
 
 /*************************************************************
