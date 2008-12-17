@@ -252,7 +252,6 @@ int nfq_close(struct nfq_handle *h)
 {
 	int ret;
 	
-	nfnl_subsys_close(h->nfnlssh);
 	ret = nfnl_close(h->nfnlh);
 	if (ret == 0)
 		free(h);
