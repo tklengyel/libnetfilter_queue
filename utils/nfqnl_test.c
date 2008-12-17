@@ -95,8 +95,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	nh = nfq_nfnlh(h);
-	fd = nfnl_fd(nh);
+	fd = nfq_fd(h);
 
 	while ((rv = recv(fd, buf, sizeof(buf), 0)) && rv >= 0) {
 		printf("pkt received\n");
