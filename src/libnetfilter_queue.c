@@ -141,7 +141,7 @@ __build_send_cfg_msg(struct nfq_handle *h, u_int8_t command,
 	cmd.pf = htons(pf);
 	nfnl_addattr_l(&u.nmh, sizeof(u), NFQA_CFG_CMD, &cmd, sizeof(cmd));
 
-	return nfnl_talk(h->nfnlh, &u.nmh, 0, 0, NULL, NULL, NULL);
+	return nfnl_query(h->nfnlh, &u.nmh);
 }
 
 static int __nfq_rcv_pkt(struct nlmsghdr *nlh, struct nfattr *nfa[],
@@ -294,6 +294,9 @@ struct nfq_handle *nfq_open(void)
 
 	if (!nfnlh)
 		return NULL;
+
+	/* unset netlink sequence tracking by default */
+	nfnl_unset_sequence_tracking(nfnlh);
 
 	qh = nfq_open_nfnl(nfnlh);
 	if (!qh)
@@ -553,7 +556,7 @@ int nfq_set_mode(struct nfq_q_handle *qh,
 	nfnl_addattr_l(&u.nmh, sizeof(u), NFQA_CFG_PARAMS, &params,
 			sizeof(params));
 
-	return nfnl_talk(qh->h->nfnlh, &u.nmh, 0, 0, NULL, NULL, NULL);
+	return nfnl_query(qh->h->nfnlh, &u.nmh);
 }
 
 /**
@@ -581,7 +584,7 @@ int nfq_set_queue_maxlen(struct nfq_q_handle *qh,
 	nfnl_addattr_l(&u.nmh, sizeof(u), NFQA_CFG_QUEUE_MAXLEN, &queue_maxlen,
 			sizeof(queue_maxlen));
 
-	return nfnl_talk(qh->h->nfnlh, &u.nmh, 0, 0, NULL, NULL, NULL);
+	return nfnl_query(qh->h->nfnlh, &u.nmh);
 }
 
 /**
