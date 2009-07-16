@@ -55,6 +55,10 @@
  * The current development version of libnetfilter_queue can be accessed
  * at https://git.netfilter.org/cgi-bin/gitweb.cgi?p=libnetfilter_queue.git;a=summary.
  *
+ * \section Privileges
+ * You need the CAP_NET_ADMIN capability in order to allow your application
+ * to receive from and to send packets to kernel-space.
+ *
  * \section Using libnetfilter_queue
  * 
  * To write your own program using libnetfilter_queue, you should start by reading
