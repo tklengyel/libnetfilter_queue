@@ -679,6 +679,22 @@ int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 }	
 
 /**
+ * nfq_set_verdict2 - like nfq_set_verdict, but you can set the mark.
+ * \param qh Netfilter queue handle obtained by call to nfq_create_queue().
+ * \param id	ID assigned to packet by netfilter.
+ * \param verdict verdict to return to netfilter (NF_ACCEPT, NF_DROP)
+ * \param mark mark to put on packet
+ * \param data_len number of bytes of data pointed to by #buf
+ * \param buf the buffer that contains the packet data
+ */
+int nfq_set_verdict2(struct nfq_q_handle *qh, u_int32_t id,
+		     u_int32_t verdict, u_int32_t mark,
+		     u_int32_t data_len, unsigned char *buf)
+{
+	return __set_verdict(qh, id, verdict, htonl(mark), 1, data_len, buf);
+}
+
+/**
  * nfq_set_verdict_mark - like nfq_set_verdict, but you can set the mark.
  * \param qh Netfilter queue handle obtained by call to nfq_create_queue().
  * \param id	ID assigned to packet by netfilter.
@@ -686,6 +702,9 @@ int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
  * \param mark mark to put on packet
  * \param data_len number of bytes of data pointed to by #buf
  * \param buf the buffer that contains the packet data
+ *
+ * This function is deprecated since it is broken, its use is highly
+ * discouraged. Please, use nfq_set_verdict2 instead.
  */
 int nfq_set_verdict_mark(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark,
