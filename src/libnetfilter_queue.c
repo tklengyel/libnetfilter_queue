@@ -541,6 +541,8 @@ int nfq_handle_packet(struct nfq_handle *h, char *buf, int len)
  * - NFQNL_COPY_NONE - do not copy any data
  * - NFQNL_COPY_META - copy only packet metadata
  * - NFQNL_COPY_PACKET - copy entire packet
+ *
+ * \return -1 on error; >=0 otherwise.
  */
 int nfq_set_mode(struct nfq_q_handle *qh,
 		u_int8_t mode, u_int32_t range)
@@ -571,6 +573,8 @@ int nfq_set_mode(struct nfq_q_handle *qh,
  * Sets the size of the queue in kernel. This fixes the maximum number
  * of packets the kernel will store before internally before dropping
  * upcoming packets.
+ *
+ * \return -1 on error; >=0 otherwise.
  */
 int nfq_set_queue_maxlen(struct nfq_q_handle *qh,
 				u_int32_t queuelen)
@@ -670,6 +674,8 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
  * Notifies netfilter of the userspace verdict for the given packet.  Every
  * queued packet _must_ have a verdict specified by userspace, either by
  * calling this function, or by calling the nfq_set_verdict_mark() function.
+ *
+ * \return -1 on error; >= 0 otherwise.
  */
 int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t data_len, 
@@ -699,9 +705,11 @@ int nfq_set_verdict2(struct nfq_q_handle *qh, u_int32_t id,
  * \param qh Netfilter queue handle obtained by call to nfq_create_queue().
  * \param id	ID assigned to packet by netfilter.
  * \param verdict verdict to return to netfilter (NF_ACCEPT, NF_DROP)
- * \param mark mark to put on packet
+ * \param mark the mark to put on the packet, in network byte order.
  * \param data_len number of bytes of data pointed to by #buf
  * \param buf the buffer that contains the packet data
+ *
+ * \return -1 on error; >= 0 otherwise.
  *
  * This function is deprecated since it is broken, its use is highly
  * discouraged. Please, use nfq_set_verdict2 instead.
@@ -848,10 +856,9 @@ u_int32_t nfq_get_physoutdev(struct nfq_data *nfad)
  * was received through
  * \param nlif_handle pointer to a nlif interface resolving handle
  * \param nfad Netlink packet data handle passed to callback function
- * \param name pointer that will be set to the interface name string 
+ * \param name pointer to the buffer to receive the interface name;
+ *  not more than \c IFNAMSIZ bytes will be copied to it.
  * \return -1 in case of error, >0 if it succeed. 
- *
- * The #name variable will point to the name of the input interface.
  *
  * To use a nlif_handle, You need first to call nlif_open() and to open
  * an handler. Don't forget to store the result as it will be used 
@@ -894,10 +901,8 @@ int nfq_get_indev_name(struct nlif_handle *nlif_handle,
  * packet was received through
  * \param nlif_handle pointer to a nlif interface resolving handle
  * \param nfad Netlink packet data handle passed to callback function
- * \param name pointer that will be set to the interface name string 
- *
- * The #name variable will point to the name of the input physical
- * interface.
+ * \param name pointer to the buffer to receive the interface name;
+ *  not more than \c IFNAMSIZ bytes will be copied to it.
  *
  * See nfq_get_indev_name() documentation for nlif_handle usage.
  *
@@ -915,9 +920,8 @@ int nfq_get_physindev_name(struct nlif_handle *nlif_handle,
  * packet will be sent to
  * \param nlif_handle pointer to a nlif interface resolving handle
  * \param nfad Netlink packet data handle passed to callback function
- * \param name pointer that will be set to the interface name string 
- *
- * The #name variable will point to the name of the output interface.
+ * \param name pointer to the buffer to receive the interface name;
+ *  not more than \c IFNAMSIZ bytes will be copied to it.
  *
  * See nfq_get_indev_name() documentation for nlif_handle usage.
  *
@@ -935,9 +939,8 @@ int nfq_get_outdev_name(struct nlif_handle *nlif_handle,
  * packet will be sent to
  * \param nlif_handle pointer to a nlif interface resolving handle
  * \param nfad Netlink packet data handle passed to callback function
- * \param name pointer that will be set to the interface name string 
- * The #name variable will point to the name of the physical
- * output interface.
+ * \param name pointer to the buffer to receive the interface name;
+ *  not more than \c IFNAMSIZ bytes will be copied to it.
  *
  * See nfq_get_indev_name() documentation for nlif_handle usage.
  *
