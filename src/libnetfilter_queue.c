@@ -217,7 +217,7 @@ struct nfnl_handle *nfq_nfnlh(struct nfq_handle *h)
 	}
 \endverbatim
  * When the decision on a packet has been choosed, the verdict has to be given
- * by calling nfq_set_verdict() or nfq_set_verdict_mark(). The verdict
+ * by calling nfq_set_verdict() or nfq_set_verdict2(). The verdict
  * determines the destiny of the packet as follows:
  *
  *   - NF_DROP discarded the packet
@@ -682,7 +682,7 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
  *
  * Notifies netfilter of the userspace verdict for the given packet.  Every
  * queued packet _must_ have a verdict specified by userspace, either by
- * calling this function, or by calling the nfq_set_verdict_mark() function.
+ * calling this function, or by calling the nfq_set_verdict2() function.
  *
  * \return -1 on error; >= 0 otherwise.
  */
