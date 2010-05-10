@@ -211,13 +211,22 @@ struct nfnl_handle *nfq_nfnlh(struct nfq_handle *h)
  * \verbatim
 	fd = nfq_fd(h);
 
-	while ((rv = recv(fd, buf, sizeof(buf), 0)) && rv >= 0) {
+	while ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
 		printf("pkt received\n");
 		nfq_handle_packet(h, buf, rv);
 	}
 \endverbatim
  * When the decision on a packet has been choosed, the verdict has to be given
- * by calling nfq_set_verdict() or nfq_set_verdict_mark().
+ * by calling nfq_set_verdict() or nfq_set_verdict_mark(). The verdict
+ * determines the destiny of the packet as follows:
+ *
+ *   - NF_DROP discarded the packet
+ *   - NF_ACCEPT the packet passes, continue iterations
+ *   - NF_STOLEN gone away
+ *   - NF_QUEUE inject the packet into a different queue
+ *     (the target queue number is in the high 16 bits of the verdict)
+ *   - NF_REPEAT iterate the same cycle once more
+ *   - NF_STOP accept, but don't continue iterations
  *
  * Data and information about the packet can be fetch by using message parsing
  * functions (See \link Parsing \endlink).
