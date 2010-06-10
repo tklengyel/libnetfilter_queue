@@ -1,0 +1,17 @@
+doxygen.cfg
+doxygen
+
+config.guess
+config.log
+config.sub
+config.status
+configure
+autom4te.cache
+libtool
+ltmain.sh
+missing
+install-sh
+depcomp
+aclocal.m4
+
+libnetfilter_queue.pc
