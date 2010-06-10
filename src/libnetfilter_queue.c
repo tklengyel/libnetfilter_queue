@@ -1003,7 +1003,7 @@ struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad)
  *
  * \return -1 on error, otherwise > 0.
  */
-int nfq_get_payload(struct nfq_data *nfad, char **data)
+int nfq_get_payload(struct nfq_data *nfad, unsigned char **data)
 {
 	*data = nfnl_get_pointer_to_data(nfad->data, NFQA_PAYLOAD, char);
 	if (*data)

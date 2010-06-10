@@ -16,7 +16,7 @@ static u_int32_t print_pkt (struct nfq_data *tb)
 	struct nfqnl_msg_packet_hw *hwph;
 	u_int32_t mark,ifi; 
 	int ret;
-	char *data;
+	unsigned char *data;
 
 	ph = nfq_get_msg_packet_hdr(tb);
 	if (ph) {

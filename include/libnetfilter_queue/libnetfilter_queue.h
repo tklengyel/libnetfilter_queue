@@ -104,7 +104,7 @@ extern int nfq_get_physoutdev_name(struct nlif_handle *nlif_handle,
 extern struct nfqnl_msg_packet_hw *nfq_get_packet_hw(struct nfq_data *nfad);
 
 /* return -1 if problem, length otherwise */
-extern int nfq_get_payload(struct nfq_data *nfad, char **data);
+extern int nfq_get_payload(struct nfq_data *nfad, unsigned char **data);
 
 #ifdef __cplusplus
 } /* extern "C" */
