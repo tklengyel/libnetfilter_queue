@@ -60,14 +60,14 @@ extern int nfq_set_verdict(struct nfq_q_handle *qh,
 			     u_int32_t id,
 			     u_int32_t verdict,
 			     u_int32_t data_len,
-			     unsigned char *buf);
+			     const unsigned char *buf);
 
 extern int nfq_set_verdict2(struct nfq_q_handle *qh,
 			    u_int32_t id,
 			    u_int32_t verdict, 
 			    u_int32_t mark,
 			    u_int32_t datalen,
-			    unsigned char *buf);
+			    const unsigned char *buf);
 
 extern __attribute__((deprecated))
 int nfq_set_verdict_mark(struct nfq_q_handle *qh, 
@@ -75,7 +75,7 @@ int nfq_set_verdict_mark(struct nfq_q_handle *qh,
 			 u_int32_t verdict, 
 			 u_int32_t mark,
 			 u_int32_t datalen,
-			 unsigned char *buf);
+			 const unsigned char *buf);
 
 /* message parsing function */
 

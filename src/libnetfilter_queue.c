@@ -610,7 +610,7 @@ int nfq_set_queue_maxlen(struct nfq_q_handle *qh,
 
 static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark, int set_mark,
-		u_int32_t data_len, unsigned char *data)
+		u_int32_t data_len, const unsigned char *data)
 {
 	struct nfqnl_msg_verdict_hdr vh;
 	union {
@@ -646,8 +646,9 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 	nvecs = 1;
 
 	if (data_len) {
+		/* The typecast here is to cast away data's const-ness: */
 		nfnl_build_nfa_iovec(&iov[1], &data_attr, NFQA_PAYLOAD,
-				data_len, data);
+				data_len, (unsigned char *) data);
 		nvecs += 2;
 		/* Add the length of the appended data to the message
 		 * header.  The size of the attribute is given in the
@@ -688,7 +689,7 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
  */
 int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t data_len, 
-		unsigned char *buf)
+		const unsigned char *buf)
 {
 	return __set_verdict(qh, id, verdict, 0, 0, data_len, buf);
 }	
@@ -704,7 +705,7 @@ int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
  */
 int nfq_set_verdict2(struct nfq_q_handle *qh, u_int32_t id,
 		     u_int32_t verdict, u_int32_t mark,
-		     u_int32_t data_len, unsigned char *buf)
+		     u_int32_t data_len, const unsigned char *buf)
 {
 	return __set_verdict(qh, id, verdict, htonl(mark), 1, data_len, buf);
 }
@@ -725,7 +726,7 @@ int nfq_set_verdict2(struct nfq_q_handle *qh, u_int32_t id,
  */
 int nfq_set_verdict_mark(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark,
-		u_int32_t data_len, unsigned char *buf)
+		u_int32_t data_len, const unsigned char *buf)
 {
 	return __set_verdict(qh, id, verdict, mark, 1, data_len, buf);
 }
