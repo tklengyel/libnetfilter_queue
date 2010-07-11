@@ -1012,24 +1012,27 @@ int nfq_get_payload(struct nfq_data *nfad, unsigned char **data)
 	return -1;
 }
 
-#define SNPRINTF_FAILURE(size, len, offset)			\
+#define SNPRINTF_FAILURE(ret, rem, offset, len)			\
 do {								\
-	if (size < 0 || (unsigned int) size >= len)		\
-		return size;					\
-	offset += size;						\
-	len -= size;						\
+	if (ret < 0)						\
+		return ret;					\
+	len += ret;						\
+	if (ret > rem)						\
+		ret = rem;					\
+	offset += ret;						\
+	rem -= ret;						\
 } while (0)
 
-int nfq_snprintf_xml(char *buf, size_t len, struct nfq_data *tb, int flags)
+int nfq_snprintf_xml(char *buf, size_t rem, struct nfq_data *tb, int flags)
 {
 	struct nfqnl_msg_packet_hdr *ph;
 	struct nfqnl_msg_packet_hw *hwph;
 	u_int32_t mark, ifi;
-	int size, offset = 0, ret;
+	int size, offset = 0, len = 0, ret;
 	unsigned char *data;
 
-	size = snprintf(buf + offset, len, "<pkt>");
-	SNPRINTF_FAILURE(size, len, offset);
+	size = snprintf(buf + offset, rem, "<pkt>");
+	SNPRINTF_FAILURE(size, rem, offset, len);
 
 	if (flags & NFQ_XML_TIME) {
 		time_t t;
@@ -1039,128 +1042,128 @@ int nfq_snprintf_xml(char *buf, size_t len, struct nfq_data *tb, int flags)
 		if (localtime_r(&t, &tm) == NULL)
 			return -1;
 
-		size = snprintf(buf + offset, len, "<when>");
-		SNPRINTF_FAILURE(size, len, offset);
+		size = snprintf(buf + offset, rem, "<when>");
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
-		size = snprintf(buf + offset, len,
+		size = snprintf(buf + offset, rem,
 				"<hour>%d</hour>", tm.tm_hour);
-		SNPRINTF_FAILURE(size, len, offset);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
 		size = snprintf(buf + offset,
-				len, "<min>%02d</min>", tm.tm_min);
-		SNPRINTF_FAILURE(size, len, offset);
+				rem, "<min>%02d</min>", tm.tm_min);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
 		size = snprintf(buf + offset,
-				len, "<sec>%02d</sec>", tm.tm_sec);
-		SNPRINTF_FAILURE(size, len, offset);
+				rem, "<sec>%02d</sec>", tm.tm_sec);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
-		size = snprintf(buf + offset, len, "<wday>%d</wday>",
+		size = snprintf(buf + offset, rem, "<wday>%d</wday>",
 				tm.tm_wday + 1);
-		SNPRINTF_FAILURE(size, len, offset);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
-		size = snprintf(buf + offset, len, "<day>%d</day>", tm.tm_mday);
-		SNPRINTF_FAILURE(size, len, offset);
+		size = snprintf(buf + offset, rem, "<day>%d</day>", tm.tm_mday);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
-		size = snprintf(buf + offset, len, "<month>%d</month>",
+		size = snprintf(buf + offset, rem, "<month>%d</month>",
 				tm.tm_mon + 1);
-		SNPRINTF_FAILURE(size, len, offset);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
-		size = snprintf(buf + offset, len, "<year>%d</year>",
+		size = snprintf(buf + offset, rem, "<year>%d</year>",
 				1900 + tm.tm_year);
-		SNPRINTF_FAILURE(size, len, offset);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
-		size = snprintf(buf + offset, len, "</when>");
-		SNPRINTF_FAILURE(size, len, offset);
+		size = snprintf(buf + offset, rem, "</when>");
+		SNPRINTF_FAILURE(size, rem, offset, len);
 	}
 
 	ph = nfq_get_msg_packet_hdr(tb);
 	if (ph) {
-		size = snprintf(buf + offset, len,
+		size = snprintf(buf + offset, rem,
 				"<hook>%u</hook><id>%u</id>",
 				ph->hook, ntohl(ph->packet_id));
-		SNPRINTF_FAILURE(size, len, offset);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
 		hwph = nfq_get_packet_hw(tb);
 		if (hwph && (flags & NFQ_XML_HW)) {
 			int i, hlen = ntohs(hwph->hw_addrlen);
 
-			size = snprintf(buf + offset, len, "<hw><proto>0x%04x"
+			size = snprintf(buf + offset, rem, "<hw><proto>0x%04x"
 							   "</proto>",
 					ntohs(ph->hw_protocol));
-			SNPRINTF_FAILURE(size, len, offset);
+			SNPRINTF_FAILURE(size, rem, offset, len);
 
-			size = snprintf(buf + offset, len, "<src>");
-			SNPRINTF_FAILURE(size, len, offset);
+			size = snprintf(buf + offset, rem, "<src>");
+			SNPRINTF_FAILURE(size, rem, offset, len);
 
 			for (i=0; i<hlen-1; i++) {
-				size = snprintf(buf + offset, len, "%02x:",
+				size = snprintf(buf + offset, rem, "%02x:",
 						ntohs(ph->hw_protocol));
-				SNPRINTF_FAILURE(size, len, offset);
+				SNPRINTF_FAILURE(size, rem, offset, len);
 			}
 
-			size = snprintf(buf + offset, len, "</src></hw>");
-			SNPRINTF_FAILURE(size, len, offset);
+			size = snprintf(buf + offset, rem, "</src></hw>");
+			SNPRINTF_FAILURE(size, rem, offset, len);
 		} else if (flags & NFQ_XML_HW) {
-			size = snprintf(buf + offset, len, "<hw><proto>0x%04x"
+			size = snprintf(buf + offset, rem, "<hw><proto>0x%04x"
 						    "</proto></hw>",
 				 ntohs(ph->hw_protocol));
-			SNPRINTF_FAILURE(size, len, offset);
+			SNPRINTF_FAILURE(size, rem, offset, len);
 		}
 	}
 
 	mark = nfq_get_nfmark(tb);
 	if (mark && (flags & NFQ_XML_MARK)) {
-		size = snprintf(buf + offset, len, "<mark>%u</mark>", mark);
-		SNPRINTF_FAILURE(size, len, offset);
+		size = snprintf(buf + offset, rem, "<mark>%u</mark>", mark);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 	}
 
 	ifi = nfq_get_indev(tb);
 	if (ifi && (flags & NFQ_XML_DEV)) {
-		size = snprintf(buf + offset, len, "<indev>%u</indev>", ifi);
-		SNPRINTF_FAILURE(size, len, offset);
+		size = snprintf(buf + offset, rem, "<indev>%u</indev>", ifi);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 	}
 
 	ifi = nfq_get_outdev(tb);
 	if (ifi && (flags & NFQ_XML_DEV)) {
-		size = snprintf(buf + offset, len, "<outdev>%u</outdev>", ifi);
-		SNPRINTF_FAILURE(size, len, offset);
+		size = snprintf(buf + offset, rem, "<outdev>%u</outdev>", ifi);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 	}
 
 	ifi = nfq_get_physindev(tb);
 	if (ifi && (flags & NFQ_XML_PHYSDEV)) {
-		size = snprintf(buf + offset, len,
+		size = snprintf(buf + offset, rem,
 				"<physindev>%u</physindev>", ifi);
-		SNPRINTF_FAILURE(size, len, offset);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 	}
 
 	ifi = nfq_get_physoutdev(tb);
 	if (ifi && (flags & NFQ_XML_PHYSDEV)) {
-		size = snprintf(buf + offset, len,
+		size = snprintf(buf + offset, rem,
 				"<physoutdev>%u</physoutdev>", ifi);
-		SNPRINTF_FAILURE(size, len, offset);
+		SNPRINTF_FAILURE(size, rem, offset, len);
 	}
 
 	ret = nfq_get_payload(tb, &data);
 	if (ret >= 0 && (flags & NFQ_XML_PAYLOAD)) {
 		int i;
 
-		size = snprintf(buf + offset, len, "<payload>");
-		SNPRINTF_FAILURE(size, len, offset);
+		size = snprintf(buf + offset, rem, "<payload>");
+		SNPRINTF_FAILURE(size, rem, offset, len);
 
 		for (i=0; i<ret; i++) {
-			size = snprintf(buf + offset, len, "%02x",
+			size = snprintf(buf + offset, rem, "%02x",
 					data[i] & 0xff);
-			SNPRINTF_FAILURE(size, len, offset);
+			SNPRINTF_FAILURE(size, rem, offset, len);
 		}
 
-		size = snprintf(buf + offset, len, "</payload>");
-		SNPRINTF_FAILURE(size, len, offset);
+		size = snprintf(buf + offset, rem, "</payload>");
+		SNPRINTF_FAILURE(size, rem, offset, len);
 	}
 
-	size = snprintf(buf + offset, len, "</pkt>");
-	SNPRINTF_FAILURE(size, len, offset);
+	size = snprintf(buf + offset, rem, "</pkt>");
+	SNPRINTF_FAILURE(size, rem, offset, len);
 
-	return size;
+	return len;
 }
 
 /**
