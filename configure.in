@@ -4,7 +4,7 @@ AC_INIT
 AC_CANONICAL_SYSTEM
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE(libnetfilter_queue, 0.0.17)
+AM_INIT_AUTOMAKE(libnetfilter_queue, 1.0.0)
 
 AC_PROG_CC
 AC_EXEEXT
