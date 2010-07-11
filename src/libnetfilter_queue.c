@@ -1026,7 +1026,7 @@ int nfq_snprintf_xml(char *buf, size_t len, struct nfq_data *tb, int flags)
 	struct nfqnl_msg_packet_hw *hwph;
 	u_int32_t mark, ifi;
 	int size, offset = 0, ret;
-	char *data;
+	unsigned char *data;
 
 	size = snprintf(buf + offset, len, "<pkt>");
 	SNPRINTF_FAILURE(size, len, offset);
