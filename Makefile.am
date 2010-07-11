@@ -1,5 +1,7 @@
 AUTOMAKE_OPTIONS = foreign dist-bzip2 1.6
 
+ACLOCAL_AMFLAGS = -I m4
+
 EXTRA_DIST = $(man_MANS) 
 
 SUBDIRS = include src utils
