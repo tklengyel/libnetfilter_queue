@@ -1095,9 +1095,9 @@ int nfq_snprintf_xml(char *buf, size_t rem, struct nfq_data *tb, int flags)
 			size = snprintf(buf + offset, rem, "<src>");
 			SNPRINTF_FAILURE(size, rem, offset, len);
 
-			for (i=0; i<hlen-1; i++) {
-				size = snprintf(buf + offset, rem, "%02x:",
-						ntohs(ph->hw_protocol));
+			for (i=0; i<hlen; i++) {
+				size = snprintf(buf + offset, rem, "%02x",
+						hwph->hw_addr[i]);
 				SNPRINTF_FAILURE(size, rem, offset, len);
 			}
 
