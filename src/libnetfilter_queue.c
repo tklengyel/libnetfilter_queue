@@ -1012,6 +1012,10 @@ int nfq_get_payload(struct nfq_data *nfad, unsigned char **data)
 	return -1;
 }
 
+/**
+ * @}
+ */
+
 #define SNPRINTF_FAILURE(ret, rem, offset, len)			\
 do {								\
 	if (ret < 0)						\
@@ -1023,6 +1027,34 @@ do {								\
 	rem -= ret;						\
 } while (0)
 
+/**
+ * \defgroup Printing
+ * @{
+ */
+
+/**
+ * nfq_snprintf_xml - print the enqueued packet in XML format into a buffer
+ * \param buf The buffer that you want to use to print the logged packet
+ * \param rem The size of the buffer that you have passed
+ * \param tb Netlink packet data handle passed to callback function
+ * \param flags The flag that tell what to print into the buffer
+ *
+ * This function supports the following flags:
+ *
+ *	- NFQ_XML_HW: include the hardware link layer address
+ *	- NFQ_XML_MARK: include the packet mark
+ *	- NFQ_XML_DEV: include the device information
+ *	- NFQ_XML_PHYSDEV: include the physical device information
+ *	- NFQ_XML_PAYLOAD: include the payload (in hexadecimal)
+ *	- NFQ_XML_TIME: include the timestamp
+ *	- NFQ_XML_ALL: include all the logging information (all flags set)
+ *
+ * You can combine this flags with an binary OR.
+ *
+ * \return -1 in case of failure, otherwise the length of the string that
+ * would have been printed into the buffer (in case that there is enough
+ * room in it). See snprintf() return value for more information.
+ */
 int nfq_snprintf_xml(char *buf, size_t rem, struct nfq_data *tb, int flags)
 {
 	struct nfqnl_msg_packet_hdr *ph;
