@@ -1,6 +1,7 @@
 /* libnetfilter_queue.c: generic library for access to nf_queue
  *
  * (C) 2005 by Harald Welte <laforge@gnumonks.org>
+ * (C) 2005, 2008-2010 by Pablo Neira Ayuso <pablo@netfilter.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 
