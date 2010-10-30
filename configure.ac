@@ -19,15 +19,7 @@ case "$host" in
 esac
 
 dnl Dependencies
-LIBNFNETLINK_REQUIRED=0.0.41
- 
-PKG_CHECK_MODULES(LIBNFNETLINK, libnfnetlink >= $LIBNFNETLINK_REQUIRED,,
-	AC_MSG_ERROR(Cannot find libnfnetlink >= $LIBNFNETLINK_REQUIRED))
- 
-CFLAGS="$CFLAGS $LIBNFNETLINK_CFLAGS"
-LIBNFQUEUE_LIBS="$LIBNFNETLINK_LIBS"
- 
-AC_SUBST(LIBNFQUEUE_LIBS)
+PKG_CHECK_MODULES([LIBNFNETLINK], [libnfnetlink >= 0.0.41])
 
 dnl Output the makefiles
 AC_OUTPUT(Makefile include/Makefile include/libnetfilter_queue/Makefile src/Makefile utils/Makefile libnetfilter_queue.pc doxygen.cfg)
