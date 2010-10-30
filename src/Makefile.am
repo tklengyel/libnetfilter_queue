@@ -20,7 +20,7 @@
 #
 LIBVERSION=2:0:1
 
-INCLUDES = $(all_includes) -I$(top_srcdir)/include -I${KERNELDIR}
+AM_CPPFLAGS = -I$(top_srcdir)/include -I${KERNELDIR}
 AM_CFLAGS = -fPIC -Wall
 LIBS = @LIBNFQUEUE_LIBS@
 
