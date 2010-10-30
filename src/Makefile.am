@@ -21,7 +21,7 @@
 LIBVERSION=2:0:1
 
 AM_CPPFLAGS = -I$(top_srcdir)/include -I${KERNELDIR}
-AM_CFLAGS = -fPIC -Wall ${LIBNFNETLINK_CFLAGS}
+AM_CFLAGS = -Wall ${LIBNFNETLINK_CFLAGS}
 
 lib_LTLIBRARIES = libnetfilter_queue.la
 
