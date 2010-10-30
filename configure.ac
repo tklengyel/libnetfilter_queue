@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to create configure.
 
 AC_INIT([libnetfilter_queue], [1.0.0])
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([-Wall foreign subdir-objects dist-bzip2 1.6])
@@ -13,7 +13,7 @@ AC_PROG_INSTALL
 
 AC_SUBST(LIBTOOL_DEPS)
 
-case $target in 
+case "$host" in
 *-*-linux*) ;;
 *) AC_MSG_ERROR([Linux only, dude!]);;
 esac
