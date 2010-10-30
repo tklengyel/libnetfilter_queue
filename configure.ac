@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to create configure.
 
-AC_INIT
+AC_INIT([libnetfilter_queue], [1.0.0])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE(libnetfilter_queue, 1.0.0)
+AM_INIT_AUTOMAKE([-Wall foreign subdir-objects dist-bzip2 1.6])
 
 AC_PROG_CC
 AC_EXEEXT
