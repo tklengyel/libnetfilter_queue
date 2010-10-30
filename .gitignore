@@ -1,17 +1,20 @@
-doxygen.cfg
-doxygen
+.deps
+.libs
+Makefile
+Makefile.in
+*.o
+*.la
+*.lo
 
-config.guess
-config.log
-config.sub
-config.status
-configure
-autom4te.cache
-libtool
-ltmain.sh
-missing
-install-sh
-depcomp
-aclocal.m4
+/aclocal.m4
+/autom4te.cache
+/config.*
+/configure
+/depcomp
+/install-sh
+/libtool
+/ltmain.sh
+/missing
 
-libnetfilter_queue.pc
+/doxygen.cfg
+/libnetfilter_queue.pc
