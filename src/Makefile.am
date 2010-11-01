@@ -20,12 +20,12 @@
 #
 LIBVERSION=2:0:1
 
-INCLUDES = $(all_includes) -I$(top_srcdir)/include -I${KERNELDIR}
-AM_CFLAGS = -fPIC -Wall
-LIBS = @LIBNFQUEUE_LIBS@
+AM_CPPFLAGS = -I$(top_srcdir)/include -I${KERNELDIR}
+AM_CFLAGS = -Wall ${LIBNFNETLINK_CFLAGS}
 
 lib_LTLIBRARIES = libnetfilter_queue.la
 
 libnetfilter_queue_la_LDFLAGS = -Wc,-nostartfiles -lnfnetlink \
 				-version-info $(LIBVERSION)
 libnetfilter_queue_la_SOURCES = libnetfilter_queue.c 
+libnetfilter_queue_la_LIBADD  = ${LIBNFNETLINK_LIBS}
