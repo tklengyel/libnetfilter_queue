@@ -64,7 +64,28 @@
  * 
  * To write your own program using libnetfilter_queue, you should start by reading
  * the doxygen documentation (start by \link LibrarySetup \endlink page) and nfqnl_test.c source file.
- * 
+ *
+ * \section errors ENOBUFS errors in recv()
+ *
+ * recv() may return -1 and errno is set to ENOBUFS in case that your
+ * application is not fast enough to retrieve the packets from the kernel.
+ * In that case, you can increase the socket buffer size by means of
+ * nfnl_rcvbufsiz(). Although this delays the appearance of ENOBUFS errors,
+ * you may hit it again sooner or later. The next section provides some hints
+ * on how to obtain the best performance for your application.
+ *
+ * \section perf Performance
+ * To improve your libnetfilter_queue application in terms of performance,
+ * you may consider the following tweaks:
+ *
+ * - increase the default socket buffer size by means of nfnl_rcvbufsiz().
+ * - set nice value of your process to -20 (maximum priority).
+ * - set the CPU affinity of your process to a spare core that is not used
+ * to handle NIC interruptions.
+ * - set NETLINK_NO_ENOBUFS socket option to avoid receiving ENOBUFS errors
+ * (requires Linux kernel >= 2.6.30).
+ * - see --queue-balance option in NFQUEUE target for multi-threaded apps
+ * (it requires Linux kernel >= 2.6.31).
  */
 
 struct nfq_handle
