@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <linux/types.h>
 #include <linux/netfilter.h>		/* for NF_ACCEPT */
+#include <errno.h>
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
@@ -115,9 +116,25 @@ int main(int argc, char **argv)
 
 	fd = nfq_fd(h);
 
-	while ((rv = recv(fd, buf, sizeof(buf), 0)) && rv >= 0) {
-		printf("pkt received\n");
-		nfq_handle_packet(h, buf, rv);
+	for (;;) {
+		if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
+			printf("pkt received\n");
+			nfq_handle_packet(h, buf, rv);
+			continue;
+		}
+		/* if your application is too slow to digest the packets that
+		 * are sent from kernel-space, the socket buffer that we use
+		 * to enqueue packets may fill up returning ENOBUFS. Depending
+		 * on your application, this error may be ignored. Please, see
+		 * the doxygen documentation of this library on how to improve
+		 * this situation.
+		 */
+		if (rv < 0 && errno == ENOBUFS) {
+			printf("losing packets!\n");
+			continue;
+		}
+		perror("recv failed");
+		break;
 	}
 
 	printf("unbinding from queue 0\n");
