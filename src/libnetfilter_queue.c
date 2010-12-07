@@ -569,7 +569,7 @@ int nfq_handle_packet(struct nfq_handle *h, char *buf, int len)
  * Sets the amount of data to be copied to userspace for each packet queued
  * to the given queue.
  *
- * - NFQNL_COPY_NONE - do not copy any data
+ * - NFQNL_COPY_NONE - noop, do not use it
  * - NFQNL_COPY_META - copy only packet metadata
  * - NFQNL_COPY_PACKET - copy entire packet
  *
