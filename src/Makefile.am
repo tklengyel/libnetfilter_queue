@@ -21,7 +21,6 @@
 LIBVERSION=2:0:1
 
 include ${top_srcdir}/Make_global.am
-AM_CFLAGS = -Wall ${LIBNFNETLINK_CFLAGS}
 
 lib_LTLIBRARIES = libnetfilter_queue.la
 
