@@ -244,11 +244,16 @@ struct nfnl_handle *nfq_nfnlh(struct nfq_handle *h)
  *
  *   - NF_DROP discarded the packet
  *   - NF_ACCEPT the packet passes, continue iterations
- *   - NF_STOLEN gone away
  *   - NF_QUEUE inject the packet into a different queue
  *     (the target queue number is in the high 16 bits of the verdict)
  *   - NF_REPEAT iterate the same cycle once more
  *   - NF_STOP accept, but don't continue iterations
+ *
+ * The verdict NF_STOLEN must not be used, as it has special meaning in the
+ * kernel.
+ * When using NF_REPEAT, one way to prevent re-queueing of the same packet
+ * is to also set an nfmark using nfq_set_verdict2, and set up the nefilter
+ * rules to only queue a packet when the mark is not (yet) set.
  *
  * Data and information about the packet can be fetch by using message parsing
  * functions (See \link Parsing \endlink).
