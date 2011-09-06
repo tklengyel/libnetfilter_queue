@@ -632,7 +632,8 @@ int nfq_set_queue_maxlen(struct nfq_q_handle *qh,
 
 static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark, int set_mark,
-		u_int32_t data_len, const unsigned char *data)
+		u_int32_t data_len, const unsigned char *data,
+		enum nfqnl_msg_types type)
 {
 	struct nfqnl_msg_verdict_hdr vh;
 	union {
@@ -655,7 +656,7 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 	vh.id = htonl(id);
 
 	nfnl_fill_hdr(qh->h->nfnlssh, &u.nmh, 0, AF_UNSPEC, qh->id,
-			NFQNL_MSG_VERDICT, NLM_F_REQUEST);
+				type, NLM_F_REQUEST);
 
 	/* add verdict header */
 	nfnl_addattr_l(&u.nmh, sizeof(u), NFQA_VERDICT_HDR, &vh, sizeof(vh));
@@ -705,7 +706,8 @@ static int __set_verdict(struct nfq_q_handle *qh, u_int32_t id,
  *
  * Notifies netfilter of the userspace verdict for the given packet.  Every
  * queued packet _must_ have a verdict specified by userspace, either by
- * calling this function, or by calling the nfq_set_verdict2() function.
+ * calling this function, the nfq_set_verdict2() function, or the _batch
+ * versions of these functions.
  *
  * \return -1 on error; >= 0 otherwise.
  */
@@ -713,7 +715,8 @@ int nfq_set_verdict(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t data_len, 
 		const unsigned char *buf)
 {
-	return __set_verdict(qh, id, verdict, 0, 0, data_len, buf);
+	return __set_verdict(qh, id, verdict, 0, 0, data_len, buf,
+						NFQNL_MSG_VERDICT);
 }	
 
 /**
@@ -729,7 +732,41 @@ int nfq_set_verdict2(struct nfq_q_handle *qh, u_int32_t id,
 		     u_int32_t verdict, u_int32_t mark,
 		     u_int32_t data_len, const unsigned char *buf)
 {
-	return __set_verdict(qh, id, verdict, htonl(mark), 1, data_len, buf);
+	return __set_verdict(qh, id, verdict, htonl(mark), 1, data_len,
+						buf, NFQNL_MSG_VERDICT);
+}
+
+/**
+ * nfq_set_verdict_batch - issue verdicts on several packets at once
+ * \param qh Netfilter queue handle obtained by call to nfq_create_queue().
+ * \param id maximum ID of the packets that the verdict should be applied to.
+ * \param verdict verdict to return to netfilter (NF_ACCEPT, NF_DROP)
+ *
+ * Unlike nfq_set_verdict, the verdict is applied to all queued packets
+ * whose packet id is smaller or equal to #id.
+ *
+ * batch support was added in Linux 3.1.
+ * These functions will fail silently on older kernels.
+ */
+int nfq_set_verdict_batch(struct nfq_q_handle *qh, u_int32_t id,
+					  u_int32_t verdict)
+{
+	return __set_verdict(qh, id, verdict, 0, 0, 0, NULL,
+					NFQNL_MSG_VERDICT_BATCH);
+}
+
+/**
+ * nfq_set_verdict_batch2 - like nfq_set_verdict_batch, but you can set a mark.
+ * \param qh Netfilter queue handle obtained by call to nfq_create_queue().
+ * \param id maximum ID of the packets that the verdict should be applied to.
+ * \param verdict verdict to return to netfilter (NF_ACCEPT, NF_DROP)
+ * \param mark mark to put on packet
+ */
+int nfq_set_verdict_batch2(struct nfq_q_handle *qh, u_int32_t id,
+		     u_int32_t verdict, u_int32_t mark)
+{
+	return __set_verdict(qh, id, verdict, htonl(mark), 1, 0,
+				NULL, NFQNL_MSG_VERDICT_BATCH);
 }
 
 /**
@@ -750,7 +787,8 @@ int nfq_set_verdict_mark(struct nfq_q_handle *qh, u_int32_t id,
 		u_int32_t verdict, u_int32_t mark,
 		u_int32_t data_len, const unsigned char *buf)
 {
-	return __set_verdict(qh, id, verdict, mark, 1, data_len, buf);
+	return __set_verdict(qh, id, verdict, mark, 1, data_len, buf,
+						NFQNL_MSG_VERDICT);
 }
 
 /**

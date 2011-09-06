@@ -69,6 +69,15 @@ extern int nfq_set_verdict2(struct nfq_q_handle *qh,
 			    u_int32_t datalen,
 			    const unsigned char *buf);
 
+extern int nfq_set_verdict_batch(struct nfq_q_handle *qh,
+			    u_int32_t id,
+			    u_int32_t verdict);
+
+extern int nfq_set_verdict_batch2(struct nfq_q_handle *qh,
+			    u_int32_t id,
+			    u_int32_t verdict,
+			    u_int32_t mark);
+
 extern __attribute__((deprecated))
 int nfq_set_verdict_mark(struct nfq_q_handle *qh, 
 			 u_int32_t id,
