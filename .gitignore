@@ -8,14 +8,10 @@ Makefile.in
 
 /aclocal.m4
 /autom4te.cache/
-/compile
+/build-aux/
 /config.*
 /configure
-/depcomp
-/install-sh
 /libtool
-/ltmain.sh
-/missing
 
 /doxygen.cfg
 /libnetfilter_queue.pc
