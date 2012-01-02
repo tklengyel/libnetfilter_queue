@@ -18,7 +18,7 @@
 # set age to 0.
 # </snippet>
 #
-LIBVERSION=2:0:1
+LIBVERSION=3:0:2
 
 include ${top_srcdir}/Make_global.am
 
