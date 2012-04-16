@@ -1,3 +1,1 @@
-
-SUBDIRS = libnetfilter_queue
-
+SUBDIRS= libnetfilter_queue linux

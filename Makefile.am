@@ -1,8 +1,8 @@
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = $(man_MANS) 
+EXTRA_DIST = $(man_MANS) include/linux
 
-SUBDIRS = include src utils
+SUBDIRS = src utils include examples
 
 man_MANS = #nfnetlink_queue.3 nfnetlink_queue.7
 
