@@ -29,5 +29,12 @@ include_HEADERS = internal.h
 libnetfilter_queue_la_LDFLAGS = -Wc,-nostartfiles -lnfnetlink \
 				-version-info $(LIBVERSION)
 libnetfilter_queue_la_SOURCES = libnetfilter_queue.c	\
-				nlmsg.c
+				nlmsg.c			\
+				extra/checksum.c	\
+				extra/ipv6.c		\
+				extra/tcp.c		\
+				extra/ipv4.c		\
+				extra/pktbuff.c		\
+				extra/udp.c
+
 libnetfilter_queue_la_LIBADD  = ${LIBNFNETLINK_LIBS} ${LIBMNL_LIBS}
