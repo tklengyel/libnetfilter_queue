@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <string.h> /* for memcpy */
+#include <stdbool.h>
 #include <arpa/inet.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
@@ -18,6 +19,7 @@
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include <libnetfilter_queue/libnetfilter_queue_tcp.h>
+#include <libnetfilter_queue/libnetfilter_queue_ipv4.h>
 #include <libnetfilter_queue/pktbuff.h>
 
 #include "internal.h"
@@ -134,12 +136,12 @@ int nfq_tcp_snprintf(char *buf, size_t size, const struct tcphdr *tcph)
 #define TCP_RESERVED_BITS htonl(0x0F000000)
 
 	ret = snprintf(buf, size, "SPT=%u DPT=%u SEQ=%u ACK=%u "
-				   "WINDOW=%u RES=%0x%02x ",
+				   "WINDOW=%u RES=0x%02x ",
 			ntohs(tcph->source), ntohs(tcph->dest),
 			ntohl(tcph->seq), ntohl(tcph->ack_seq),
 			ntohs(tcph->window),
-			(uint8_t)(ntohl(tcp_flag_word(tcph) &
-				TCP_RESERVED_BITS) >> 22));
+			(uint8_t)
+			(ntohl(tcp_flag_word(tcph) & TCP_RESERVED_BITS) >> 22));
 	len += ret;
 
 	if (tcph->urg) {
@@ -166,9 +168,32 @@ int nfq_tcp_snprintf(char *buf, size_t size, const struct tcphdr *tcph)
 		ret = snprintf(buf+len, size-len, "FIN ");
 		len += ret;
 	}
-	/* Not TCP options implemented yet, sorry. */
+	/* XXX: Not TCP options implemented yet, sorry. */
+
+	return ret;
 }
 EXPORT_SYMBOL(nfq_tcp_snprintf);
+
+int
+nfq_tcp_mangle_ipv4(struct pkt_buff *pkt,
+		    unsigned int match_offset, unsigned int match_len,
+		    const char *rep_buffer, unsigned int rep_len)
+{
+	struct iphdr *iph;
+	struct tcphdr *tcph;
+
+	iph = (struct iphdr *)pkt->network_header;
+	tcph = (struct tcphdr *)(pkt->network_header + iph->ihl*4);
+
+	if (!nfq_ip_mangle(pkt, iph->ihl*4 + tcph->doff*4,
+				match_offset, match_len, rep_buffer, rep_len))
+		return 0;
+
+	nfq_tcp_compute_checksum_ipv4(tcph, iph);
+
+	return 1;
+}
+EXPORT_SYMBOL(nfq_tcp_mangle_ipv4);
 
 /**
  * @}

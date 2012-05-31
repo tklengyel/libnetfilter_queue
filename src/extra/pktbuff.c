@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <string.h> /* for memcpy */
+#include <stdbool.h>
 
 #include <netinet/if_ether.h>
 #include <netinet/ip.h>
@@ -136,6 +137,67 @@ uint8_t *pktb_transport_header(struct pkt_buff *pktb)
 {
 	return pktb->transport_header;
 }
+
+static int pktb_expand_tail(struct pkt_buff *pkt, int extra)
+{
+	/* XXX: support reallocation case. */
+	pkt->len += extra;
+	pkt->tail = pkt->tail + extra;
+	return 0;
+}
+
+static int enlarge_pkt(struct pkt_buff *pkt, unsigned int extra)
+{
+	if (pkt->len + extra > 65535)
+		return 0;
+
+	if (pktb_expand_tail(pkt, extra - pktb_tailroom(pkt)))
+		return 0;
+
+	return 1;
+}
+
+int pktb_mangle(struct pkt_buff *pkt,
+		 unsigned int dataoff,
+		 unsigned int match_offset,
+		 unsigned int match_len,
+		 const char *rep_buffer,
+		 unsigned int rep_len)
+{
+	unsigned char *data;
+
+	if (rep_len > match_len &&
+	    rep_len - match_len > pktb_tailroom(pkt) &&
+	    !enlarge_pkt(pkt, rep_len - match_len))
+		return 0;
+
+	data = pkt->network_header + dataoff;
+
+	/* move post-replacement */
+	memmove(data + match_offset + rep_len,
+		data + match_offset + match_len,
+		pkt->tail - (pkt->network_header + dataoff +
+			     match_offset + match_len));
+
+	/* insert data from buffer */
+	memcpy(data + match_offset, rep_buffer, rep_len);
+
+	/* update pkt info */
+	if (rep_len > match_len)
+		pktb_put(pkt, rep_len - match_len);
+	else
+		pktb_trim(pkt, pkt->len + rep_len - match_len);
+
+	pkt->mangled = true;
+	return 1;
+}
+EXPORT_SYMBOL(pktb_mangle);
+
+bool pktb_mangled(const struct pkt_buff *pkt)
+{
+	return pkt->mangled;
+}
+EXPORT_SYMBOL(pktb_mangled);
 
 /**
  * @}

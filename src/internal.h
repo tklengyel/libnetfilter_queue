@@ -27,6 +27,8 @@ struct pkt_buff {
 
 	uint32_t len;
 	uint32_t data_len;
+
+	bool	mangled;
 };
 
 #endif

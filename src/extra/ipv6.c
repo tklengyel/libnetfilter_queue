@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <arpa/inet.h>
 #include <netinet/ip6.h>
 

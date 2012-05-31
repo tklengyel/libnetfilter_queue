@@ -10,6 +10,7 @@
  */
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <arpa/inet.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
@@ -17,6 +18,7 @@
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include <libnetfilter_queue/libnetfilter_queue_udp.h>
+#include <libnetfilter_queue/libnetfilter_queue_ipv4.h>
 #include <libnetfilter_queue/pktbuff.h>
 
 #include "internal.h"
@@ -111,6 +113,27 @@ nfq_udp_compute_checksum_ipv6(struct udphdr *udph, struct ip6_hdr *ip6h)
 	udph->check = checksum_tcpudp_ipv6(ip6h, udph);
 }
 EXPORT_SYMBOL(nfq_udp_compute_checksum_ipv6);
+
+int
+nfq_udp_mangle_ipv4(struct pkt_buff *pkt,
+		    unsigned int match_offset, unsigned int match_len,
+		    const char *rep_buffer, unsigned int rep_len)
+{
+	struct iphdr *iph;
+	struct udphdr *udph;
+
+	iph = (struct iphdr *)pkt->network_header;
+	udph = (struct udphdr *)(pkt->network_header + iph->ihl*4);
+
+	if (!nfq_ip_mangle(pkt, iph->ihl*4 + sizeof(struct udphdr),
+				match_offset, match_len, rep_buffer, rep_len))
+		return 0;
+
+	nfq_udp_compute_checksum_ipv4(udph, iph);
+
+	return 1;
+}
+EXPORT_SYMBOL(nfq_udp_mangle_ipv4);
 
 /**
  * nfq_pkt_snprintf_udp_hdr - print udp header into one buffer in a humnan

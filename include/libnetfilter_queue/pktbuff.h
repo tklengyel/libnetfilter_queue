@@ -19,4 +19,8 @@ uint8_t *pktb_mac_header(struct pkt_buff *pktb);
 uint8_t *pktb_network_header(struct pkt_buff *pktb);
 uint8_t *pktb_transport_header(struct pkt_buff *pktb);
 
+int pktb_mangle(struct pkt_buff *pkt, unsigned int dataoff, unsigned int match_offset, unsigned int match_len, const char *rep_buffer, unsigned int rep_len);
+
+bool pktb_mangled(const struct pkt_buff *pktb);
+
 #endif

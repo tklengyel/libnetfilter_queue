@@ -10,6 +10,7 @@
  */
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <arpa/inet.h>
 #include <netinet/ip.h>
 
@@ -89,6 +90,24 @@ void nfq_ip_set_checksum(struct iphdr *iph)
 	iph->check = checksum(0, (uint16_t *)iph, iph_len);
 }
 EXPORT_SYMBOL(nfq_ip_set_checksum);
+
+int nfq_ip_mangle(struct pkt_buff *pkt, unsigned int dataoff,
+		  unsigned int match_offset, unsigned int match_len,
+		  const char *rep_buffer, unsigned int rep_len)
+{
+	struct iphdr *iph = (struct iphdr *) pkt->network_header;
+
+	if (!pktb_mangle(pkt, dataoff, match_offset, match_len,
+						rep_buffer, rep_len))
+		return 0;
+
+	/* fix IP hdr checksum information */
+	iph->tot_len = htons(pkt->len);
+	nfq_ip_set_checksum(iph);
+
+	return 1;
+}
+EXPORT_SYMBOL(nfq_ip_mangle);
 
 /**
  * nfq_pkt_snprintf_ip - print IPv4 header into buffer in iptables LOG format
