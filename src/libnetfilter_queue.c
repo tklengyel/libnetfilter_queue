@@ -602,6 +602,48 @@ int nfq_set_mode(struct nfq_q_handle *qh,
 }
 
 /**
+ * nfq_set_queue_flags - set flags (options) for the kernel queue
+ * \param qh Netfilter queue handle obtained by call to nfq_create_queue().
+ * \param mask specifies which flag bits to modify
+ * \param flag bitmask of flags
+ *
+ * Here's a little code snippet to show how to use this API:
+ * \verbatim
+	uint32_t flags = NFQA_CFG_F_FAIL_OPEN;
+	uint32_t mask = NFQA_CFG_F_FAIL_OPEN;
+
+	printf("Enabling fail-open on this q\n");
+	err = nfq_set_queue_flags(qh, mask, flags);
+
+	printf("Disabling fail-open on this q\n");
+	flags &= ~NFQA_CFG_F_FAIL_OPEN;
+	err = nfq_set_queue_flags(qh, mask, flags);
+\endverbatim
+ * \return -1 on error with errno set appropriately; =0 otherwise.
+ */
+int nfq_set_queue_flags(struct nfq_q_handle *qh,
+			uint32_t mask, uint32_t flags)
+{
+	union {
+		char buf[NFNL_HEADER_LEN
+			+NFA_LENGTH(sizeof(mask)
+			+NFA_LENGTH(sizeof(flags)))];
+		struct nlmsghdr nmh;
+	} u;
+
+	mask = htonl(mask);
+	flags = htonl(flags);
+
+	nfnl_fill_hdr(qh->h->nfnlssh, &u.nmh, 0, AF_UNSPEC, qh->id,
+		      NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
+
+	nfnl_addattr32(&u.nmh, sizeof(u), NFQA_CFG_FLAGS, flags);
+	nfnl_addattr32(&u.nmh, sizeof(u), NFQA_CFG_MASK, mask);
+
+	return nfnl_query(qh->h->nfnlh, &u.nmh);
+}
+
+/**
  * nfq_set_queue_maxlen - Set kernel queue maximum length parameter
  * \param qh Netfilter queue handle obtained by call to nfq_create_queue().
  * \param queuelen the length of the queue

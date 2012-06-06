@@ -56,6 +56,9 @@ extern int nfq_set_mode(struct nfq_q_handle *qh,
 int nfq_set_queue_maxlen(struct nfq_q_handle *qh,
 			u_int32_t queuelen);
 
+extern int nfq_set_queue_flags(struct nfq_q_handle *qh,
+			       uint32_t mask, uint32_t flags);
+
 extern int nfq_set_verdict(struct nfq_q_handle *qh,
 			     u_int32_t id,
 			     u_int32_t verdict,
