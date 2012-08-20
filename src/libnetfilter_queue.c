@@ -63,7 +63,8 @@
  * \section Using libnetfilter_queue
  * 
  * To write your own program using libnetfilter_queue, you should start by reading
- * the doxygen documentation (start by \link LibrarySetup \endlink page) and nfqnl_test.c source file.
+ * the doxygen documentation (start by \link LibrarySetup \endlink page) and
+ * nf-queue.c source file.
  *
  * \section errors ENOBUFS errors in recv()
  *
@@ -204,7 +205,7 @@ struct nfnl_handle *nfq_nfnlh(struct nfq_handle *h)
 
 /**
  *
- * \defgroup Queue Queue handling
+ * \defgroup Queue Queue handling [DEPRECATED]
  *
  * Once libnetfilter_queue library has been initialised (See 
  * \link LibrarySetup \endlink), it is possible to bind the program to a
@@ -282,7 +283,7 @@ int nfq_fd(struct nfq_handle *h)
  */
 
 /**
- * \defgroup LibrarySetup Library setup
+ * \defgroup LibrarySetup Library setup [DEPRECATED]
  *
  * Library initialisation is made in two steps.
  *
@@ -849,7 +850,7 @@ int nfq_set_verdict_mark(struct nfq_q_handle *qh, u_int32_t id,
  *************************************************************/
 
 /**
- * \defgroup Parsing Message parsing functions
+ * \defgroup Parsing Message parsing functions [DEPRECATED]
  * @{
  */
 
@@ -860,7 +861,7 @@ int nfq_set_verdict_mark(struct nfq_q_handle *qh, u_int32_t id,
  * \return the netfilter queue netlink packet header for the given
  * nfq_data argument.  Typically, the nfq_data value is passed as the 3rd
  * parameter to the callback function set by a call to nfq_create_queue().
- *
+  *
  * The nfqnl_msg_packet_hdr structure is defined in libnetfilter_queue.h as:
  *
  * \verbatim
@@ -1135,7 +1136,7 @@ do {								\
 } while (0)
 
 /**
- * \defgroup Printing
+ * \defgroup Printing Printing [DEPRECATED]
  * @{
  */
 

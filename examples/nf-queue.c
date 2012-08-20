@@ -143,8 +143,6 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	while (ret > 0) {
-		uint32_t id;
-
 		ret = mnl_cb_run(buf, ret, 0, portid, queue_cb, NULL);
 		if (ret < 0){
 			perror("mnl_cb_run");
