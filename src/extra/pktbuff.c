@@ -100,17 +100,20 @@ void pktb_free(struct pkt_buff *pktb)
 
 void pktb_push(struct pkt_buff *pktb, unsigned int len)
 {
-	pktb->data += len;
+	pktb->data -= len;
+	pktb->len += len;
 }
 
 void pktb_pull(struct pkt_buff *pktb, unsigned int len)
 {
-	pktb->data -= len;
+	pktb->data += len;
+	pktb->len -= len;
 }
 
 void pktb_put(struct pkt_buff *pktb, unsigned int len)
 {
 	pktb->tail += len;
+	pktb->len += len;
 }
 
 void pktb_trim(struct pkt_buff *pktb, unsigned int len)
