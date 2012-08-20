@@ -140,10 +140,16 @@ uint8_t *pktb_transport_header(struct pkt_buff *pktb)
 
 static int pktb_expand_tail(struct pkt_buff *pkt, int extra)
 {
-	/* XXX: support reallocation case. */
+	/* No room in packet, cannot mangle it. We don't support dynamic
+	 * reallocation. Instead, increase the size of the extra room in
+	 * the tail in pktb_alloc.
+	 */
+	if (pkt->len + extra > pkt->data_len)
+		return 0;
+
 	pkt->len += extra;
 	pkt->tail = pkt->tail + extra;
-	return 0;
+	return 1;
 }
 
 static int enlarge_pkt(struct pkt_buff *pkt, unsigned int extra)
@@ -151,7 +157,7 @@ static int enlarge_pkt(struct pkt_buff *pkt, unsigned int extra)
 	if (pkt->len + extra > 65535)
 		return 0;
 
-	if (pktb_expand_tail(pkt, extra - pktb_tailroom(pkt)))
+	if (!pktb_expand_tail(pkt, extra - pktb_tailroom(pkt)))
 		return 0;
 
 	return 1;
