@@ -26,7 +26,7 @@
 #include "internal.h"
 
 /**
- * \defgroup nfq_verd Queue verdict object handling
+ * \defgroup nfq_verd Verdict helpers
  * @{
  */
 
@@ -58,7 +58,7 @@ EXPORT_SYMBOL(nfq_nlmsg_verdict_put_pkt);
  */
 
 /**
- * \defgroup nfq_cfg Queue config object handling
+ * \defgroup nfq_cfg Config helpers
  * @{
  */
 

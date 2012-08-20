@@ -174,6 +174,16 @@ int nfq_tcp_snprintf(char *buf, size_t size, const struct tcphdr *tcph)
 }
 EXPORT_SYMBOL(nfq_tcp_snprintf);
 
+/**
+ * nfq_tcp_mangle_ipv4 - mangle TCP/IPv4 packet buffer
+ * \param pktb: pointer to network packet buffer
+ * \param match_offset: offset to content that you want to mangle
+ * \param match_len: length of the existing content you want to mangle
+ * \param rep_buffer: pointer to data you want to use to replace current content
+ * \param rep_len: length of data you want to use to replace current content
+ *
+ * \note This function recalculates the IPv4 and TCP checksums for you.
+ */
 int
 nfq_tcp_mangle_ipv4(struct pkt_buff *pkt,
 		    unsigned int match_offset, unsigned int match_len,

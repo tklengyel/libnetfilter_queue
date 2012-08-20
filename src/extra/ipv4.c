@@ -56,9 +56,9 @@ struct iphdr *nfq_ip_get_hdr(struct pkt_buff *pktb)
 EXPORT_SYMBOL(nfq_ip_get_hdr);
 
 /**
- * nfq_ip_get_payload - get the IPv4 packet payload
+ * nfq_ip_set_transport_header - set transport header
  * \param pktb: pointer to network packet buffer
- * \param iph: the pointer to the IPv4 header
+ * \param iph: pointer to the IPv4 header
  */
 int nfq_ip_set_transport_header(struct pkt_buff *pktb, struct iphdr *iph)
 {
@@ -77,8 +77,6 @@ EXPORT_SYMBOL(nfq_ip_set_transport_header);
  * nfq_ip_set_checksum - set IPv4 checksum
  * \param iph: pointer to the IPv4 header
  *
- * \returns the checksum of the ip packet.
- *
  * \note Call to this function if you modified the IPv4 header to update the
  * checksum.
  */
@@ -91,6 +89,17 @@ void nfq_ip_set_checksum(struct iphdr *iph)
 }
 EXPORT_SYMBOL(nfq_ip_set_checksum);
 
+/**
+ * nfq_ip_mangle - mangle IPv4 packet buffer
+ * \param pktb: pointer to network packet buffer
+ * \param dataoff: offset to layer 4 header
+ * \param match_offset: offset to content that you want to mangle
+ * \param match_len: length of the existing content you want to mangle
+ * \param rep_buffer: pointer to data you want to use to replace current content
+ * \param rep_len: length of data you want to use to replace current content
+ *
+ * \note This function recalculates the IPv4 checksum (if needed).
+ */
 int nfq_ip_mangle(struct pkt_buff *pkt, unsigned int dataoff,
 		  unsigned int match_offset, unsigned int match_len,
 		  const char *rep_buffer, unsigned int rep_len)
