@@ -31,12 +31,11 @@ nfq_hdr_put(char *buf, int type, uint32_t queue_num)
 	return nlh;
 }
 
-static int
+static void
 nfq_send_verdict(int queue_num, uint32_t id)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
 	struct nlmsghdr *nlh;
-	int ret;
 
 	nlh = nfq_hdr_put(buf, NFQNL_MSG_VERDICT, queue_num);
 	nfq_nlmsg_verdict_put(nlh, id, NF_ACCEPT);
@@ -45,16 +44,15 @@ nfq_send_verdict(int queue_num, uint32_t id)
 		perror("mnl_socket_send");
 		exit(EXIT_FAILURE);
 	}
-
-	return ret;
 }
 
 static int queue_cb(const struct nlmsghdr *nlh, void *data)
 {
 	struct nfqnl_msg_packet_hdr *ph = NULL;
-	struct nlattr *attr[NFQA_MAX+1];
+	struct nlattr *attr[NFQA_MAX+1] = {};
 	uint32_t id = 0;
 	struct nfgenmsg *nfg;
+	uint16_t plen;
 
 	if (nfq_nlmsg_parse(nlh, attr) < 0) {
 		perror("problems parsing");
@@ -63,17 +61,19 @@ static int queue_cb(const struct nlmsghdr *nlh, void *data)
 
 	nfg = mnl_nlmsg_get_payload(nlh);
 
-	ph = (struct nfqnl_msg_packet_hdr *)
-		mnl_attr_get_payload(attr[NFQA_PACKET_HDR]);
-	if (ph == NULL) {
-		perror("problems retrieving metaheader");
+	if (attr[NFQA_PACKET_HDR] == NULL) {
+		fputs("metaheader not set\n", stderr);
 		return MNL_CB_ERROR;
 	}
 
-	id = ntohl(ph->packet_id);
+	ph = mnl_attr_get_payload(attr[NFQA_PACKET_HDR]);
 
-	printf("packet received (id=%u hw=0x%04x hook=%u)\n",
-		id, ntohs(ph->hw_protocol), ph->hook);
+	plen = mnl_attr_get_payload_len(attr[NFQA_PAYLOAD]);
+	/* void *payload = mnl_attr_get_payload(attr[NFQA_PAYLOAD]); */
+
+	id = ntohl(ph->packet_id);
+	printf("packet received (id=%u hw=0x%04x hook=%u, payload len %u)\n",
+		id, ntohs(ph->hw_protocol), ph->hook, plen);
 
 	nfq_send_verdict(ntohs(nfg->res_id), id);
 
