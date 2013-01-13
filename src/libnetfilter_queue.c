@@ -51,7 +51,21 @@
  *  - receiving queued packets from the kernel nfnetlink_queue subsystem
  *  - issuing verdicts and/or reinjecting altered packets to the kernel
  *  nfnetlink_queue subsystem
- * 
+ *
+ * The cinematic is the following: When an iptables rules with target NFQUEUE
+ * matches, the kernel en-queued the packet in a chained list. It then format
+ * a nfnetlink message and sends the information (packet data , packet id and
+ * metadata) via a socket to the software connected to the queue. The software
+ * can then read the message.
+ *
+ * To remove the packet from the queue, the userspace software must issue a
+ * verdict asking kernel to accept or drop the packet. Userspace can also alter
+ * the packet. Verdict can be done in asynchronous manner, as the only needed
+ * information is the packet id.
+ *
+ * When a queue is full, packets that should have been en-queued are dropped by
+ * kernel instead of being en-queued.
+ *
  * \section Git Tree
  * The current development version of libnetfilter_queue can be accessed
  * at https://git.netfilter.org/cgi-bin/gitweb.cgi?p=libnetfilter_queue.git;a=summary.
@@ -65,6 +79,10 @@
  * To write your own program using libnetfilter_queue, you should start by reading
  * the doxygen documentation (start by \link LibrarySetup \endlink page) and
  * nf-queue.c source file.
+ *
+ * Another source of information on libnetfilter_queue usage is the following
+ * article:
+ *  https://home.regit.org/netfilter-en/using-nfqueue-and-libnetfilter_queue/
  *
  * \section errors ENOBUFS errors in recv()
  *
@@ -89,6 +107,8 @@
  * (it requires Linux kernel >= 2.6.31).
  * - consider using fail-open option see nfq_set_queue_flags() (it requires
  *  Linux kernel >= 3.6)
+ * - increase queue max length with nfq_set_queue_maxlen() to resist to packets
+ * burst
  */
 
 struct nfq_handle
