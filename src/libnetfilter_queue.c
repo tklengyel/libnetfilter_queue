@@ -87,6 +87,8 @@
  * (requires Linux kernel >= 2.6.30).
  * - see --queue-balance option in NFQUEUE target for multi-threaded apps
  * (it requires Linux kernel >= 2.6.31).
+ * - consider using fail-open option see nfq_set_queue_flags() (it requires
+ *  Linux kernel >= 3.6)
  */
 
 struct nfq_handle
@@ -620,6 +622,12 @@ int nfq_set_mode(struct nfq_q_handle *qh,
 	flags &= ~NFQA_CFG_F_FAIL_OPEN;
 	err = nfq_set_queue_flags(qh, mask, flags);
 \endverbatim
+ *
+ * If NFQA_CFG_F_FAIL_OPEN is used, the kernel will accept instead of
+ * drop packets that should have been enqueued to a full queue. This
+ * results in the system being able to handle high network load but at
+ * the depend of the control of the packets.
+ *
  * \return -1 on error with errno set appropriately; =0 otherwise.
  */
 int nfq_set_queue_flags(struct nfq_q_handle *qh,
