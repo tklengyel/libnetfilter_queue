@@ -630,6 +630,15 @@ int nfq_set_mode(struct nfq_q_handle *qh,
  * \param mask specifies which flag bits to modify
  * \param flag bitmask of flags
  *
+ * Existing flags, that you may want to combine, are:
+ *
+ * - NFQA_CFG_F_FAIL_OPEN (requires Linux kernel >= 3.6): the kernel will
+ *   accept the packets if the kernel queue gets full. If this flag is not
+ *   set, the default action in this case is to drop packets.
+ *
+ * - NFQA_CFG_F_CONNTRACK (requires Linux kernel >= 3.6): the kernel will
+ *   include the Connection Tracking system information.
+ *
  * Here's a little code snippet to show how to use this API:
  * \verbatim
 	uint32_t flags = NFQA_CFG_F_FAIL_OPEN;
@@ -642,11 +651,6 @@ int nfq_set_mode(struct nfq_q_handle *qh,
 	flags &= ~NFQA_CFG_F_FAIL_OPEN;
 	err = nfq_set_queue_flags(qh, mask, flags);
 \endverbatim
- *
- * If NFQA_CFG_F_FAIL_OPEN is used, the kernel will accept instead of
- * drop packets that should have been enqueued to a full queue. This
- * results in the system being able to handle high network load but at
- * the depend of the control of the packets.
  *
  * \return -1 on error with errno set appropriately; =0 otherwise.
  */
