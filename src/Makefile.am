@@ -24,7 +24,7 @@ include ${top_srcdir}/Make_global.am
 
 lib_LTLIBRARIES = libnetfilter_queue.la
 
-include_HEADERS = internal.h
+noinst_HEADERS = internal.h
 
 libnetfilter_queue_la_LDFLAGS = -Wc,-nostartfiles -lnfnetlink \
 				-version-info $(LIBVERSION)
