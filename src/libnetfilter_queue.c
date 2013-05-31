@@ -186,6 +186,7 @@ __build_send_cfg_msg(struct nfq_handle *h, u_int8_t command,
 	nfnl_fill_hdr(h->nfnlssh, &u.nmh, 0, AF_UNSPEC, queuenum,
 			NFQNL_MSG_CONFIG, NLM_F_REQUEST|NLM_F_ACK);
 
+	cmd._pad = 0;
 	cmd.command = command;
 	cmd.pf = htons(pf);
 	nfnl_addattr_l(&u.nmh, sizeof(u), NFQA_CFG_CMD, &cmd, sizeof(cmd));
